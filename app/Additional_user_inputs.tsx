@@ -412,103 +412,36 @@ const validateForm = () => {
   return Object.keys(newErrors).length === 0;
 };
 
+// Handle container layout
+  
 
 
-
- const saveToBackend = async () => {
+ const goToCalculator = () => {
   if (!validateForm()) return;
 
-  setLoading(true);
-
-  try {
-    const apiData = prepareApiData();
-
-    const response = await api.post('/power-stations', apiData);
-
-    if (response.data.success) {
-
-      setSuccessMessage('Power station saved successfully!');
-      setShowSuccess(true);
-
-      setTimeout(() => setShowSuccess(false), 3000);
-
-    const navigationParams = {
-  stationName: powerStationName,
-  pipeDiaD2: pipeDiaD2,
-  // t2p: t2p,
-  p1Unit: p1Unit,
-  t1Unit: t1Unit,
-  wcrhUnit: wcrhUnit,
-  heatRateValue: heatRateValue,
-  plantMCR: plantMCR,
-  plantType: plantType,
-  criticalType: criticalType,
-  currency:
-productionCostCurrency === "custom"
-  ? customCurrency
-  : productionCostCurrency,
-
-  pipeDiaUnit: pipeDiaUnit,
+  router.push({
+    pathname: "/CalculatorScreen",
+    params: {
+      powerStationData: JSON.stringify({
+        stationName: powerStationName,
+        pipeDiaD2: pipeDiaD2,
+        pipeDiaUnit: pipeDiaUnit,
+        plantType: plantType,
+        criticalType: criticalType,
+        plantMCR: plantMCR,
+        heatRateValue: heatRateValue,
+        currency:
+          productionCostCurrency === "custom"
+            ? customCurrency
+            : productionCostCurrency,
+        sellPricePerMWh: sellPricePerMWh,
+        p1Unit,
+        t1Unit,
+        wcrhUnit,
+      }),
+    },
+  });
 };
-
-
-      clearAllFormFields();
-
-      Alert.alert(
-        'Success',
-        'Power station data saved successfully!',
-        [
-          {
-            text: 'OK',
-            onPress: () =>
-              router.push({
-  pathname: '/CalculatorScreen',
-  params: navigationParams,
-})
-          },
-        ]
-      );
-
-    } else {
-      Alert.alert(
-        'Error',
-        response.data.message || 'Failed to save data'
-      );
-    }
-
-  } catch (error: any) {
-    console.error('API Error:', error);
-
-    let errorMessage = 'Failed to save power station data';
-
-    if (error.response) {
-      if (error.response.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.response.status === 400) {
-        errorMessage = 'Validation error. Please check inputs.';
-      } else if (error.response.status === 404) {
-        errorMessage = 'Resource not found.';
-      } else if (error.response.status === 500) {
-        errorMessage = 'Server error. Please try later.';
-      }
-    } else if (error.request) {
-      errorMessage = 'No server response. Check connection.';
-    } else {
-      errorMessage = error.message || 'Network error';
-    }
-
-    Alert.alert('Error', errorMessage);
-
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-
-
-
-  // Handle container layout
   const handleContentLayout = (event: any) => {
     const { height } = event.nativeEvent.layout;
     setContainerHeight(height);
@@ -882,7 +815,7 @@ Sell Price ({productionCostCurrency === "custom"
             <View style={styles.saveButtonContainer}>
               <TouchableOpacity
                 style={[styles.saveButton, (!powerStationName.trim() || loading) && styles.saveButtonDisabled]}
-                onPress={saveToBackend}
+                onPress={goToCalculator}
                 disabled={loading}
 
                 activeOpacity={0.7}
