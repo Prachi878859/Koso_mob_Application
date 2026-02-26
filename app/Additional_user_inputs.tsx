@@ -28,7 +28,6 @@ interface PlantData {
   power_station_name: string;
   pipe_dia_d2: string | null;
   pipe_dia_unit: string | null;
-  // t2p: string | null;
   plant_type: string | null;
   critical_type: string | null;
   plant_mcr: string | null;
@@ -73,36 +72,31 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
 }) => {
   return (
     <View style={{ zIndex, overflow: 'visible' }}>
-<DropDownPicker
-  open={open}
-  value={value}
-  items={items}
-  setOpen={setOpen}
-  setValue={setValue}
-  onChangeValue={onSelect}
-  placeholder={placeholder}
-  disabled={disabled}
-  listMode="SCROLLVIEW"
-  dropDownDirection="BOTTOM"
-  nestedScrollEnabled={true}
-  zIndex={zIndex}
-  zIndexInverse={1000 - zIndex}
-style={[styles.dropdown, { height: 50, width: '100%' }]}
-
-
- dropDownContainerStyle={{
-  borderWidth: 1,
-  borderColor: '#E0E0E0',
-  borderRadius: 8,
-  backgroundColor: '#FFF',
-  elevation: zIndex,
-  zIndex: zIndex,
-}}
-
-
-  closeAfterSelecting
-/>
-
+      <DropDownPicker
+        open={open}
+        value={value}
+        items={items}
+        setOpen={setOpen}
+        setValue={setValue}
+        onChangeValue={onSelect}
+        placeholder={placeholder}
+        disabled={disabled}
+        listMode="SCROLLVIEW"
+        dropDownDirection="BOTTOM"
+        nestedScrollEnabled={true}
+        zIndex={zIndex}
+        zIndexInverse={1000 - zIndex}
+        style={[styles.dropdown, { height: 50, width: '100%' }]}
+        dropDownContainerStyle={{
+          borderWidth: 1,
+          borderColor: '#E0E0E0',
+          borderRadius: 8,
+          backgroundColor: '#FFF',
+          elevation: zIndex,
+          zIndex: zIndex,
+        }}
+        closeAfterSelecting
+      />
     </View>
   );
 };
@@ -112,10 +106,10 @@ style={[styles.dropdown, { height: 50, width: '100%' }]}
 export default function AdditionalUserInputsScreen() {
   // Form states
   const [errors, setErrors] = useState<any>({});
+  const [warnings, setWarnings] = useState<any>({});
   const [powerStationName, setPowerStationName] = useState('');
   const [pipeDiaD2, setPipeDiaD2] = useState('');
   const [pipeDiaUnit, setPipeDiaUnit] = useState<string | null>('MM');
-  // const [t2p, setT2p] = useState('');
   const [plantType, setPlantType] = useState<string | null>(null);
   const [criticalType, setCriticalType] = useState<string | null>(null);
   const [plantMCR, setPlantMCR] = useState('');
@@ -136,7 +130,6 @@ export default function AdditionalUserInputsScreen() {
   const [t1Unit, setT1Unit] = useState('deg C');
   const [wcrhUnit, setWcrhUnit] = useState('T/HR');
 
-
   // UI states
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -145,13 +138,11 @@ export default function AdditionalUserInputsScreen() {
   const [showHistoryBtn, setShowHistoryBtn] = useState(true);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [currencyItems, setCurrencyItems] = useState<DropdownItem[]>([
-  { label: 'USD', value: 'USD' },
-  { label: 'Euro', value: 'Euro' },
-  { label: 'INR', value: 'INR' },
-  { label: 'Custom', value: 'custom' },
-]);
-
-
+    { label: 'USD', value: 'USD' },
+    { label: 'Euro', value: 'Euro' },
+    { label: 'INR', value: 'INR' },
+    { label: 'Custom', value: 'custom' },
+  ]);
 
   // Refs for handling scroll
   const scrollViewRef = useRef<ScrollView>(null);
@@ -179,25 +170,22 @@ export default function AdditionalUserInputsScreen() {
     { label: 'Default', value: 'default' },
   ];
 
- 
-
   const p1UnitItems = [
- { label: 'barA', value: 'barA' },
- { label: 'psiA', value: 'psiA' },
-];
+    { label: 'barA', value: 'barA' },
+    { label: 'psiA', value: 'psiA' },
+  ];
 
-const t1UnitItems = [
- { label: 'deg C', value: 'deg C' },
- { label: 'deg F', value: 'deg F' },
-];
+  const t1UnitItems = [
+    { label: 'deg C', value: 'deg C' },
+    { label: 'deg F', value: 'deg F' },
+  ];
 
-const wcrhUnitItems = [
- { label: 'T/HR', value: 'T/HR' },
- { label: 'KG/S', value: 'KG/S' },
- { label: 'KPPH/HR', value: 'KPPH/HR' },
- { label: 'LB/S', value: 'LB/S' },
-];
-
+  const wcrhUnitItems = [
+    { label: 'T/HR', value: 'T/HR' },
+    { label: 'KG/S', value: 'KG/S' },
+    { label: 'KPPH/HR', value: 'KPPH/HR' },
+    { label: 'LB/S', value: 'LB/S' },
+  ];
 
   /* ---------------- DROPDOWN HANDLERS ---------------- */
 
@@ -240,22 +228,20 @@ const wcrhUnitItems = [
     }
   }, [currencyOpen]);
 
-useEffect(() => {
-  const showSub = Keyboard.addListener("keyboardDidShow", () => {
-    setKeyboardVisible(true);
-  });
+  useEffect(() => {
+    const showSub = Keyboard.addListener("keyboardDidShow", () => {
+      setKeyboardVisible(true);
+    });
 
-  const hideSub = Keyboard.addListener("keyboardDidHide", () => {
-    setKeyboardVisible(false);
-  });
+    const hideSub = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardVisible(false);
+    });
 
-  return () => {
-    showSub.remove();
-    hideSub.remove();
-  };
-}, []);
-
-
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   /* ---------------- FORM HANDLERS ---------------- */
 
@@ -273,13 +259,122 @@ useEffect(() => {
     }
   };
 
+  /* ---------------- VALIDATION FUNCTIONS ---------------- */
+
+  // Validate Pipe Diameter D2 with bounds checking (300-600)
+  const validatePipeDiameter = (value: string): { isValid: boolean; warning: string | null } => {
+    if (!value.trim()) {
+      return { isValid: false, warning: null };
+    }
+    
+    const numValue = Number(value);
+    if (isNaN(numValue)) {
+      return { isValid: false, warning: null };
+    }
+
+    if (numValue < 300) {
+      return { isValid: false, warning: 'Pipe Diameter out of bounds (LOW) (300-600)' };
+    } else if (numValue > 600) {
+      return { isValid: false, warning: 'Pipe Diameter out of bounds (HIGH) (300-600)' };
+    }
+    
+    return { isValid: true, warning: null };
+  };
+
+  // Validate Plant MCR with bounds checking
+  const validatePlantMCR = (value: string): { isValid: boolean; warning: string | null } => {
+    if (!value.trim()) {
+      return { isValid: false, warning: null };
+    }
+    
+    const numValue = Number(value);
+    if (isNaN(numValue)) {
+      return { isValid: false, warning: null };
+    }
+
+    if (numValue < 100) {
+      return { isValid: false, warning: 'Plant MCR out of bounds (LOW) (100-1200)' };
+    } else if (numValue > 1200) {
+      return { isValid: false, warning: 'Plant MCR out of bounds (HIGH) (100-1200)' };
+    }
+    
+    return { isValid: true, warning: null };
+  };
+
+  // Validate Heat Rate with bounds checking (no auto-correction)
+  const validateHeatRate = (value: string): { isValid: boolean; warning: string | null } => {
+    if (!value.trim()) {
+      return { isValid: false, warning: null };
+    }
+    
+    const numValue = Number(value);
+    if (isNaN(numValue)) {
+      return { isValid: false, warning: null };
+    }
+
+    if (numValue < 6000) {
+      return { isValid: false, warning: 'Heat Rate out of bounds (LOW) (6000-12000)' };
+    } else if (numValue > 12000) {
+      return { isValid: false, warning: 'Heat Rate out of bounds (HIGH) (6000-12000)' };
+    }
+    
+    return { isValid: true, warning: null };
+  };
+
+  // Handle Pipe Diameter change with validation
+  const handlePipeDiameterChange = (text: string) => {
+    setPipeDiaD2(text);
+    
+    // Clear previous error
+    setErrors((prev: any) => ({ ...prev, pipeDiaD2: null }));
+    
+    // Validate and set warning
+    const { isValid, warning } = validatePipeDiameter(text);
+    if (!isValid && warning) {
+      setWarnings((prev: any) => ({ ...prev, pipeDiaD2: warning }));
+    } else {
+      setWarnings((prev: any) => ({ ...prev, pipeDiaD2: null }));
+    }
+  };
+
+  // Handle Plant MCR change with validation
+  const handlePlantMCRChange = (text: string) => {
+    setPlantMCR(text);
+    
+    // Clear previous error
+    setErrors((prev: any) => ({ ...prev, plantMCR: null }));
+    
+    // Validate and set warning
+    const { isValid, warning } = validatePlantMCR(text);
+    if (!isValid && warning) {
+      setWarnings((prev: any) => ({ ...prev, plantMCR: warning }));
+    } else {
+      setWarnings((prev: any) => ({ ...prev, plantMCR: null }));
+    }
+  };
+
+  // Handle Heat Rate change with validation (no auto-correction)
+  const handleHeatRateChange = (text: string) => {
+    setHeatRateValue(text);
+    
+    // Clear previous error
+    setErrors((prev: any) => ({ ...prev, heatRateValue: null }));
+    
+    // Validate and set warning
+    const { isValid, warning } = validateHeatRate(text);
+    if (!isValid && warning) {
+      setWarnings((prev: any) => ({ ...prev, heatRateValue: warning }));
+    } else {
+      setWarnings((prev: any) => ({ ...prev, heatRateValue: null }));
+    }
+  };
+
   /* ---------------- FORM CLEAR FUNCTION ---------------- */
 
   const clearAllFormFields = () => {
     // Clear all text inputs
     setPowerStationName('');
     setPipeDiaD2('');
-    // setT2p('');
     setPlantMCR('');
     setHeatRateValue('');
     setProductionCost('');
@@ -293,6 +388,10 @@ useEffect(() => {
     setHeatRateUnit('kJ/kW-h');
     setProductionCostCurrency('USD');
 
+    // Clear errors and warnings
+    setErrors({});
+    setWarnings({});
+
     // Close all dropdowns
     closeAllDropdowns();
   };
@@ -300,14 +399,11 @@ useEffect(() => {
   /* ---------------- API FUNCTIONS ---------------- */
 
   // Prepare data for API
-
-
   const prepareApiData = (): PlantData => {
     return {
       power_station_name: powerStationName.trim(),
       pipe_dia_d2: pipeDiaD2 || null,
       pipe_dia_unit: pipeDiaUnit || null,
-      // t2p: t2p || null,
       plant_type: plantType || null,
       critical_type: criticalType || null,
       plant_mcr: plantMCR || null,
@@ -320,128 +416,173 @@ useEffect(() => {
     };
   };
 
-const validateForm = () => {
-  let newErrors: any = {};
+  const validateForm = () => {
+    let newErrors: any = {};
+    let newWarnings: any = {};
 
-  // Power Station Name
-  if (!powerStationName.trim()) {
-    newErrors.powerStationName = 'Power station name is required';
-  }
-
-  // Pipe Diameter
-  if (!pipeDiaD2.trim()) {
-    newErrors.pipeDiaD2 = 'Pipe diameter is required';
-  } else if (isNaN(Number(pipeDiaD2))) {
-    newErrors.pipeDiaD2 = 'Enter valid number';
-  }
-
-  // // Temperature
-  // if (!t2p.trim()) {
-  //   newErrors.t2p = 'Temperature is required';
-  // } else if (isNaN(Number(t2p))) {
-  //   newErrors.t2p = 'Enter valid temperature';
-  // }
-
-  // Plant Type
-  if (!plantType) {
-    newErrors.plantType = 'Plant type is required';
-  }
-
-  // Critical Type
-  if (plantType === 'coal_oil_fired' && !criticalType) {
-    newErrors.criticalType = 'Critical type is required';
-  }
-
-  // Plant MCR
-  if (!plantMCR.trim()) {
-    newErrors.plantMCR = 'Plant MCR is required';
-  } else if (isNaN(Number(plantMCR))) {
-    newErrors.plantMCR = 'Enter valid MCR';
-  }
-
-  /* ---------------- HEAT RATE DEFAULT LOGIC ---------------- */
-
-  if (!heatRateValue.trim()) {
-    // 👉 PDF Default values
-    if (plantType === 'ccpp') {
-      setHeatRateValue('7500');
-    } 
-    else if (criticalType === 'supercritical') {
-      setHeatRateValue('8400');
-    } 
-    else {
-      setHeatRateValue('9500'); // Subcritical / fallback
+    // Power Station Name
+    if (!powerStationName.trim()) {
+      newErrors.powerStationName = 'Power station name is required';
     }
-  } 
-  else if (isNaN(Number(heatRateValue))) {
-    newErrors.heatRateValue = 'Enter valid heat rate';
-  }
 
-  /* ---------------- PRODUCTION COST DEFAULT LOGIC ---------------- */
+    // Pipe Diameter Validation with bounds checking
+    if (!pipeDiaD2.trim()) {
+      newErrors.pipeDiaD2 = 'Pipe diameter is required';
+    } else if (isNaN(Number(pipeDiaD2))) {
+      newErrors.pipeDiaD2 = 'Enter valid number';
+    } else {
+      const { isValid, warning } = validatePipeDiameter(pipeDiaD2);
+      if (!isValid && warning) {
+        newWarnings.pipeDiaD2 = warning;
+        // Don't set error for out of bounds, just warning
+      }
+    }
 
-  if (!productionCost.trim()) {
-    setProductionCost('50');
-    setProductionCostCurrency('USD');
-  } 
-  else if (isNaN(Number(productionCost))) {
-    newErrors.productionCost = 'Enter valid cost';
-  }
+    // Plant Type
+    if (!plantType) {
+      newErrors.plantType = 'Plant type is required';
+    }
 
-  // Currency
-  if (!productionCostCurrency) {
-    newErrors.productionCostCurrency = 'Currency required';
-  }
+    // Critical Type
+    if (plantType === 'coal_oil_fired' && !criticalType) {
+      newErrors.criticalType = 'Critical type is required';
+    }
 
-  // Custom Currency
-  if (
-    productionCostCurrency === 'custom' &&
-    !customCurrency.trim()
-  ) {
-    newErrors.customCurrency = 'Enter custom currency';
-  }
+    // Plant MCR Validation with bounds checking
+    if (!plantMCR.trim()) {
+      newErrors.plantMCR = 'Plant MCR is required';
+    } else if (isNaN(Number(plantMCR))) {
+      newErrors.plantMCR = 'Enter valid MCR';
+    } else {
+      const { isValid, warning } = validatePlantMCR(plantMCR);
+      if (!isValid && warning) {
+        newWarnings.plantMCR = warning;
+      }
+    }
 
-  // Sell Price
-  if (!sellPricePerMWh.trim()) {
-    newErrors.sellPricePerMWh = 'Sell price required';
-  } else if (isNaN(Number(sellPricePerMWh))) {
-    newErrors.sellPricePerMWh = 'Enter valid sell price';
-  }
+    // Heat Rate Validation with bounds checking
+    if (!heatRateValue.trim()) {
+      // 👉 Set default values based on plant type
+      let defaultValue = '9500'; // Default for subcritical
+      if (plantType === 'ccpp') {
+        defaultValue = '7500';
+      } else if (criticalType === 'supercritical') {
+        defaultValue = '8400';
+      }
+      setHeatRateValue(defaultValue);
+    } else if (isNaN(Number(heatRateValue))) {
+      newErrors.heatRateValue = 'Enter valid heat rate';
+    } else {
+      const { isValid, warning } = validateHeatRate(heatRateValue);
+      if (!isValid && warning) {
+        newWarnings.heatRateValue = warning;
+      }
+    }
 
-  setErrors(newErrors);
+    /* ---------------- PRODUCTION COST DEFAULT LOGIC ---------------- */
 
-  return Object.keys(newErrors).length === 0;
-};
+    if (!productionCost.trim()) {
+      setProductionCost('50');
+      setProductionCostCurrency('USD');
+    } 
+    else if (isNaN(Number(productionCost))) {
+      newErrors.productionCost = 'Enter valid cost';
+    }
 
-// Handle container layout
-  
+    // Currency
+    if (!productionCostCurrency) {
+      newErrors.productionCostCurrency = 'Currency required';
+    }
 
+    // Custom Currency
+    if (
+      productionCostCurrency === 'custom' &&
+      !customCurrency.trim()
+    ) {
+      newErrors.customCurrency = 'Enter custom currency';
+    }
 
- const goToCalculator = () => {
-  if (!validateForm()) return;
+    // Sell Price
+    if (!sellPricePerMWh.trim()) {
+      newErrors.sellPricePerMWh = 'Sell price required';
+    } else if (isNaN(Number(sellPricePerMWh))) {
+      newErrors.sellPricePerMWh = 'Enter valid sell price';
+    }
 
-  router.push({
-    pathname: "/CalculatorScreen",
-    params: {
-      powerStationData: JSON.stringify({
-        stationName: powerStationName,
-        pipeDiaD2: pipeDiaD2,
-        pipeDiaUnit: pipeDiaUnit,
-        plantType: plantType,
-        criticalType: criticalType,
-        plantMCR: plantMCR,
-        heatRateValue: heatRateValue,
-        currency:
-          productionCostCurrency === "custom"
-            ? customCurrency
-            : productionCostCurrency,
-        sellPricePerMWh: sellPricePerMWh,
-        p1Unit,
-        t1Unit,
-        wcrhUnit,
-      }),
-    },
-  });
-};
+    setErrors(newErrors);
+    setWarnings(newWarnings);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const goToCalculator = () => {
+    if (!validateForm()) {
+      // If there are warnings but no errors, still allow navigation
+      if (Object.keys(errors).length === 0 && Object.keys(warnings).length > 0) {
+        // Show warning alert but allow navigation
+        Alert.alert(
+          'Warning',
+          'There are some values out of recommended range. Do you want to continue?',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { 
+              text: 'Continue', 
+              onPress: () => {
+                router.push({
+                  pathname: "/CalculatorScreen",
+                  params: {
+                    powerStationData: JSON.stringify({
+                      stationName: powerStationName,
+                      pipeDiaD2: pipeDiaD2,
+                      pipeDiaUnit: pipeDiaUnit,
+                      plantType: plantType,
+                      criticalType: criticalType,
+                      plantMCR: plantMCR,
+                      heatRateValue: heatRateValue,
+                      currency:
+                        productionCostCurrency === "custom"
+                          ? customCurrency
+                          : productionCostCurrency,
+                      sellPricePerMWh: sellPricePerMWh,
+                      p1Unit,
+                      t1Unit,
+                      wcrhUnit,
+                    }),
+                  },
+                });
+              }
+            }
+          ]
+        );
+        return;
+      }
+      return;
+    }
+
+    router.push({
+      pathname: "/CalculatorScreen",
+      params: {
+        powerStationData: JSON.stringify({
+          stationName: powerStationName,
+          pipeDiaD2: pipeDiaD2,
+          pipeDiaUnit: pipeDiaUnit,
+          plantType: plantType,
+          criticalType: criticalType,
+          plantMCR: plantMCR,
+          heatRateValue: heatRateValue,
+          currency:
+            productionCostCurrency === "custom"
+              ? customCurrency
+              : productionCostCurrency,
+          sellPricePerMWh: sellPricePerMWh,
+          p1Unit,
+          t1Unit,
+          wcrhUnit,
+        }),
+      },
+    });
+  };
+
   const handleContentLayout = (event: any) => {
     const { height } = event.nativeEvent.layout;
     setContainerHeight(height);
@@ -466,13 +607,10 @@ const validateForm = () => {
           onScrollBeginDrag={closeAllDropdowns}
           keyboardDismissMode="on-drag"
           onScroll={() => setShowHistoryBtn(true)}
-scrollEventThrottle={16}
-
+          scrollEventThrottle={16}
         >
           {/* HEADER */}
           <View style={styles.header} pointerEvents="box-none">
-            
-
             <View style={styles.titleContainer} pointerEvents="none">
               <Text style={styles.title}>Plant Configuration</Text>
               <Text style={styles.subtitle}>Additional Plant Information</Text>
@@ -505,45 +643,43 @@ scrollEventThrottle={16}
                 </Text>
                 <TextInput
                   style={[
-  styles.input,
-  errors.powerStationName && styles.errorInput
-]}
-
+                    styles.input,
+                    errors.powerStationName && styles.errorInput
+                  ]}
                   value={powerStationName}
-                 onChangeText={(text) => {
-  setPowerStationName(text);
-  setErrors((prev:any) => ({ ...prev, powerStationName: null }));
-}}
+                  onChangeText={(text) => {
+                    setPowerStationName(text);
+                    setErrors((prev: any) => ({ ...prev, powerStationName: null }));
+                  }}
                   placeholder="Enter Name of Power station"
                   placeholderTextColor="#999"
                   onFocus={closeAllDropdowns}
                 />
               </View>
 
-              {/* Pipe Diameter and Temperature in same row */}
+              {/* Pipe Diameter and Unit in same row */}
               <View style={styles.doubleFieldContainer}>
                 {/* Pipe Diameter Field */}
                 <View style={styles.singleFieldContainer}>
-                  <Text style={styles.fieldLabel}>Pipe Diameter (D2)</Text>
+                  <Text style={styles.fieldLabel}>Pipe Diameter (D2) <Text style={styles.requiredStar}>*</Text></Text>
                   <TextInput
-  style={[
-    styles.input,
-    errors.pipeDiaD2 && styles.errorInput
-  ]}
-  value={pipeDiaD2}
-  onChangeText={(text)=>{
-    setPipeDiaD2(text);
-    setErrors((prev:any)=>({...prev,pipeDiaD2:null}))
-  }}
-  placeholder="Enter Dia"
-   placeholderTextColor="#999"  
-  keyboardType="numeric"
-/>
-
-{errors.pipeDiaD2 && (
-  <Text style={styles.errorText}>{errors.pipeDiaD2}</Text>
-)}
-
+                    style={[
+                      styles.input,
+                      errors.pipeDiaD2 && styles.errorInput,
+                      warnings.pipeDiaD2 && styles.warningInput
+                    ]}
+                    value={pipeDiaD2}
+                    onChangeText={handlePipeDiameterChange}
+                    placeholder="Enter Dia"
+                    placeholderTextColor="#999"
+                    keyboardType="numeric"
+                  />
+                  {errors.pipeDiaD2 && (
+                    <Text style={styles.errorText}>{errors.pipeDiaD2}</Text>
+                  )}
+                  {warnings.pipeDiaD2 && !errors.pipeDiaD2 && (
+                    <Text style={styles.warningText}>{warnings.pipeDiaD2}</Text>
+                  )}
                 </View>
 
                 {/* Pipe Diameter Unit Dropdown - OPEN UPWARDS */}
@@ -564,18 +700,12 @@ scrollEventThrottle={16}
                   />
                 </View>
               </View>
-
-           
-              
             </View>
 
             {/* ---------------- PLANT TYPE ---------------- */}
             <View style={[styles.section, styles.plantTypeSection, { marginBottom: -10 }]}>
-              {/* <Text style={styles.sectionTitle}>PLANT TYPE</Text> */}
-
               <View style={styles.fieldContainer}>
-                <Text style={[styles.fieldLabel]}>Plant Type</Text>
-
+                <Text style={[styles.fieldLabel]}>Plant Type <Text style={styles.requiredStar}>*</Text></Text>
                 <CustomDropdown
                   open={plantTypeOpen}
                   value={plantType}
@@ -591,14 +721,13 @@ scrollEventThrottle={16}
                   onSelect={handlePlantTypeChange}
                 />
                 {errors.plantType && (
-  <Text style={styles.errorText}>{errors.plantType}</Text>
-)}
-
+                  <Text style={styles.errorText}>{errors.plantType}</Text>
+                )}
               </View>
 
               {plantType === 'coal_oil_fired' && (
                 <View style={[styles.fieldContainer, { zIndex: 2500 }]}>
-                  <Text style={styles.fieldLabel}>Critical Type</Text>
+                  <Text style={styles.fieldLabel}>Critical Type <Text style={styles.requiredStar}>*</Text></Text>
                   <CustomDropdown
                     open={criticalTypeOpen}
                     value={criticalType}
@@ -613,9 +742,8 @@ scrollEventThrottle={16}
                     zIndex={2500}
                   />
                   {errors.criticalType && (
-  <Text style={styles.errorText}>{errors.criticalType}</Text>
-)}
-
+                    <Text style={styles.errorText}>{errors.criticalType}</Text>
+                  )}
                 </View>
               )}
             </View>
@@ -626,53 +754,51 @@ scrollEventThrottle={16}
 
               {/* Plant MCR */}
               <View style={styles.fieldContainer}>
-                <Text style={styles.fieldLabel}>Plant MCR (MW)</Text>
-               <TextInput
-  style={[
-    styles.input,
-    errors.plantMCR && styles.errorInput
-  ]}
-  value={plantMCR}
-  onChangeText={(text)=>{
-    setPlantMCR(text);
-    setErrors((prev:any)=>({...prev,plantMCR:null}))
-  }}
-  placeholder="Enter Plant MCR"
-   placeholderTextColor="#999"  
-  keyboardType="numeric"
-/>
-
-{errors.plantMCR && (
-  <Text style={styles.errorText}>{errors.plantMCR}</Text>
-)}
-
+                <Text style={styles.fieldLabel}>Plant MCR (MW) <Text style={styles.requiredStar}>*</Text></Text>
+                <TextInput
+                  style={[
+                    styles.input,
+                    errors.plantMCR && styles.errorInput,
+                    warnings.plantMCR && styles.warningInput
+                  ]}
+                  value={plantMCR}
+                  onChangeText={handlePlantMCRChange}
+                  placeholder="Enter Plant MCR"
+                  placeholderTextColor="#999"
+                  keyboardType="numeric"
+                />
+                {errors.plantMCR && (
+                  <Text style={styles.errorText}>{errors.plantMCR}</Text>
+                )}
+                {warnings.plantMCR && !errors.plantMCR && (
+                  <Text style={styles.warningText}>{warnings.plantMCR}</Text>
+                )}
               </View>
 
               {/* Heat Rate */}
               <View style={styles.fieldContainer}>
-                <Text style={styles.fieldLabel}>Heat Rate</Text>
+                <Text style={styles.fieldLabel}>Heat Rate <Text style={styles.requiredStar}>*</Text></Text>
                 <View style={styles.doubleFieldContainer}>
                   {/* Heat Rate Value */}
                   <View style={styles.singleFieldContainer}>
                     <TextInput
-  style={[
-    styles.input,
-    errors.heatRateValue && styles.errorInput
-  ]}
-  value={heatRateValue}
-  onChangeText={(text)=>{
-    setHeatRateValue(text);
-    setErrors((prev:any)=>({...prev,heatRateValue:null}))
-  }}
-  placeholder="Enter Value"
-   placeholderTextColor="#999"  
-  keyboardType="numeric"
-/>
-
-{errors.heatRateValue && (
-  <Text style={styles.errorText}>{errors.heatRateValue}</Text>
-)}
-
+                      style={[
+                        styles.input,
+                        errors.heatRateValue && styles.errorInput,
+                        warnings.heatRateValue && styles.warningInput
+                      ]}
+                      value={heatRateValue}
+                      onChangeText={handleHeatRateChange}
+                      placeholder="Enter Value"
+                      placeholderTextColor="#999"
+                      keyboardType="numeric"
+                    />
+                    {errors.heatRateValue && (
+                      <Text style={styles.errorText}>{errors.heatRateValue}</Text>
+                    )}
+                    {warnings.heatRateValue && !errors.heatRateValue && (
+                      <Text style={styles.warningText}>{warnings.heatRateValue}</Text>
+                    )}
                   </View>
 
                   {/* Heat Rate Unit */}
@@ -696,118 +822,113 @@ scrollEventThrottle={16}
             </View>
 
             {/* ---------------- FINANCIAL INFORMATION ---------------- */}
-            <View style={[styles.section, { zIndex: 60 },]}>
-                <Text style={[styles.sectionTitle, { marginTop: -40 }]}>FINANCIAL INFORMATION</Text>
+            <View style={[styles.section, { zIndex: 60 }]}>
+              <Text style={[styles.sectionTitle, { marginTop: -40 }]}>FINANCIAL INFORMATION</Text>
 
               {/* Production Cost and Currency - Fixed layout to prevent overlap */}
-             <View style={styles.fieldContainer}>
-  <Text style={styles.fieldLabel}>Production Cost (per MW-h)</Text>
+              <View style={styles.fieldContainer}>
+                <Text style={styles.fieldLabel}>Production Cost (per MW-h) <Text style={styles.requiredStar}>*</Text></Text>
 
-  <View style={styles.doubleFieldContainer}>
+                <View style={styles.doubleFieldContainer}>
+                  {/* Production Cost */}
+                  <View style={styles.singleFieldContainer}>
+                    <Text style={styles.subLabel}>Cost</Text>
+                    <TextInput
+                      style={[
+                        styles.input,
+                        errors.productionCost && styles.errorInput
+                      ]}
+                      value={productionCost}
+                      onChangeText={(text) => {
+                        setProductionCost(text);
+                        setErrors((prev: any) => ({ ...prev, productionCost: null }));
+                      }}
+                      placeholder="Enter Cost"
+                      placeholderTextColor="#999"
+                      keyboardType="numeric"
+                    />
+                    {errors.productionCost && (
+                      <Text style={styles.errorText}>{errors.productionCost}</Text>
+                    )}
+                  </View>
 
-    {/* Production Cost */}
-    <View style={styles.singleFieldContainer}>
-      <Text style={styles.subLabel}>Cost</Text>
-      <TextInput
-  style={[
-    styles.input,
-    errors.productionCost && styles.errorInput
-  ]}
-  value={productionCost}
-  onChangeText={(text)=>{
-    setProductionCost(text);
-    setErrors((prev:any)=>({...prev,productionCost:null}))
-  }}
-  placeholder="Enter Cost"
-   placeholderTextColor="#999"  
-  keyboardType="numeric"
-/>
-
-{errors.productionCost && (
-  <Text style={styles.errorText}>{errors.productionCost}</Text>
-)}
-
-    </View>
-
-    {/* Currency */}
-    <View style={styles.singleFieldContainer}>
-      <Text style={styles.subLabel}>Currency</Text>
-      <DropDownPicker
-  open={currencyOpen}
-  value={productionCostCurrency}
-  items={[
-    { label: "USD", value: "USD" },
-    { label: "Euro", value: "Euro" },
-    { label: "INR", value: "INR" },
-  ]}
-  setOpen={setCurrencyOpen}
-  setValue={setProductionCostCurrency}
-  setItems={setCurrencyItems}
-/>
-
-      {errors.productionCostCurrency && (
-  <Text style={styles.errorText}>
-    {errors.productionCostCurrency}
-  </Text>
-)}
-
-    </View>
-
-  </View>
-</View>
-
+                  {/* Currency */}
+                  <View style={styles.singleFieldContainer}>
+                    <Text style={styles.subLabel}>Currency</Text>
+                    <DropDownPicker
+                      open={currencyOpen}
+                      value={productionCostCurrency}
+                      items={[
+                        { label: "USD", value: "USD" },
+                        { label: "Euro", value: "Euro" },
+                        { label: "INR", value: "INR" },
+                      ]}
+                      setOpen={setCurrencyOpen}
+                      setValue={setProductionCostCurrency}
+                      setItems={setCurrencyItems}
+                      style={[styles.dropdown, { height: 50 }]}
+                      dropDownContainerStyle={{
+                        borderWidth: 1,
+                        borderColor: '#E0E0E0',
+                        borderRadius: 8,
+                        backgroundColor: '#FFF',
+                      }}
+                    />
+                    {errors.productionCostCurrency && (
+                      <Text style={styles.errorText}>
+                        {errors.productionCostCurrency}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              </View>
 
               {productionCostCurrency === 'custom' && (
                 <View style={styles.fieldContainer}>
-                  <Text style={styles.fieldLabel}>Custom Currency</Text>
+                  <Text style={styles.fieldLabel}>Custom Currency <Text style={styles.requiredStar}>*</Text></Text>
                   <TextInput
-  style={[
-    styles.input,
-    errors.customCurrency && styles.errorInput
-  ]}
-  value={customCurrency}
-  onChangeText={(text)=>{
-    setCustomCurrency(text);
-    setErrors((prev:any)=>({...prev,customCurrency:null}))
-  }}
-  placeholder="Enter custom currency"
-   placeholderTextColor="#999"  
-/>
-
-{errors.customCurrency && (
-  <Text style={styles.errorText}>{errors.customCurrency}</Text>
-)}
-
+                    style={[
+                      styles.input,
+                      errors.customCurrency && styles.errorInput
+                    ]}
+                    value={customCurrency}
+                    onChangeText={(text) => {
+                      setCustomCurrency(text);
+                      setErrors((prev: any) => ({ ...prev, customCurrency: null }));
+                    }}
+                    placeholder="Enter custom currency"
+                    placeholderTextColor="#999"
+                  />
+                  {errors.customCurrency && (
+                    <Text style={styles.errorText}>{errors.customCurrency}</Text>
+                  )}
                 </View>
               )}
 
               {/* Sell Price - Clear separation from currency dropdown */}
               <View style={styles.fieldContainer}>
-                <Text style={[styles.fieldLabel,{marginTop:-15}]}>
-Sell Price ({productionCostCurrency === "custom" 
-    ? customCurrency 
-    : productionCostCurrency} / MW-h)
-</Text>
-
+                <Text style={[styles.fieldLabel, { marginTop: -15 }]}>
+                  Sell Price ({productionCostCurrency === "custom"
+                    ? customCurrency
+                    : productionCostCurrency} / MW-h) <Text style={styles.requiredStar}>*</Text>
+                </Text>
                 <TextInput
-  style={[
-    styles.input,
-    errors.sellPricePerMWh && styles.errorInput
-  ]}
-  value={sellPricePerMWh}
-  onChangeText={(text)=>{
-    setSellPricePerMWh(text);
-    setErrors((prev:any)=>({...prev,sellPricePerMWh:null}))
-  }}
-  placeholder="Enter Sell Price"
-   placeholderTextColor="#999"  
-  keyboardType="numeric"
-/>
-
-{errors.sellPricePerMWh && (
-  <Text style={styles.errorText}>{errors.sellPricePerMWh}</Text>
-)}
-
+                  style={[
+                    styles.input,
+                    errors.sellPricePerMWh && styles.errorInput
+                  ]}
+                  value={sellPricePerMWh}
+                  onChangeText={(text) => {
+                    setSellPricePerMWh(text);
+                    setErrors((prev: any) => ({ ...prev, sellPricePerMWh: null }));
+                  }}
+                  placeholder="Enter Sell Price"
+                  placeholderTextColor="#999"
+                  keyboardType="numeric"
+                />
+                {errors.sellPricePerMWh && (
+                  <Text style={styles.errorText}>{errors.sellPricePerMWh}</Text>
+                )}
               </View>
             </View>
 
@@ -817,7 +938,6 @@ Sell Price ({productionCostCurrency === "custom"
                 style={[styles.saveButton, (!powerStationName.trim() || loading) && styles.saveButtonDisabled]}
                 onPress={goToCalculator}
                 disabled={loading}
-
                 activeOpacity={0.7}
               >
                 {loading ? (
@@ -827,24 +947,18 @@ Sell Price ({productionCostCurrency === "custom"
                 )}
               </TouchableOpacity>
             </View>
-
-            
           </View>
         </ScrollView>
         {!isKeyboardVisible && (
-  <TouchableOpacity
-    style={styles.floatingButton}
-    activeOpacity={0.8}
-    onPress={() => router.push('/ViewHistoryScreen')}
-  >
-    <Ionicons name="time-outline" size={22} color="#fff" />
-    <Text style={styles.floatingButtonText}>View History</Text>
-  </TouchableOpacity>
-)}
-
-
-
-        
+          <TouchableOpacity
+            style={styles.floatingButton}
+            activeOpacity={0.8}
+            onPress={() => router.push('/ViewHistoryScreen')}
+          >
+            <Ionicons name="time-outline" size={22} color="#fff" />
+            <Text style={styles.floatingButtonText}>View History</Text>
+          </TouchableOpacity>
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -860,40 +974,43 @@ const styles = StyleSheet.create({
     backgroundColor: '#ef4b56'
   },
   errorInput: {
-  borderColor: 'red',
-},
-floatingButton: {
-  position: 'absolute',
-  bottom: 30,
-  right: 20,
-  flexDirection: 'row',
-  alignItems: 'center',
-  backgroundColor: '#ef4b56',
-  paddingVertical: 12,
-  paddingHorizontal: 18,
-  borderRadius: 30,
-
-  elevation: 8,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.3,
-  shadowRadius: 3,
-},
-
-floatingButtonText: {
-  color: '#fff',
-  fontSize: 14,
-  fontWeight: '600',
-  marginLeft: 8,
-},
-
-
-errorText: {
-  color: 'red',
-  fontSize: 12,
-  marginTop: 4,
-},
-
+    borderColor: 'red',
+  },
+  warningInput: {
+    borderColor: 'red', // Changed from orange to red
+  },
+  floatingButton: {
+    position: 'absolute',
+    bottom: 30,
+    right: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ef4b56',
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: 30,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+  },
+  floatingButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 4,
+  },
+  warningText: {
+    color: 'red', // Changed from orange to red
+    fontSize: 12,
+    marginTop: 4,
+  },
   container: {
     flex: 1
   },
@@ -931,11 +1048,10 @@ errorText: {
     marginBottom: 8
   },
   subLabel: {
-  fontSize: 13,
-  color: '#666',
-  marginBottom: 6,
-},
-
+    fontSize: 13,
+    color: '#666',
+    marginBottom: 6,
+  },
   subtitle: {
     fontSize: 16,
     color: '#FFF',
@@ -961,17 +1077,14 @@ errorText: {
     backgroundColor: '#FFF',
     padding: 20,
     overflow: 'visible',
-    
     position: 'relative',
     minHeight: 'auto',
-   
   },
   section: {
     marginBottom: 30,
     position: 'relative',
     overflow: 'visible',
   },
-  // Special style for Plant Type section
   plantTypeSection: {
     zIndex: 3000,
     position: 'relative',
@@ -988,8 +1101,6 @@ errorText: {
     marginBottom: 20,
     fontWeight: 'bold',
     letterSpacing: 0.5,
-
-
   },
   fieldContainer: {
     marginBottom: 20,
@@ -1001,16 +1112,14 @@ errorText: {
     position: 'relative',
     overflow: 'visible',
   },
- doubleFieldContainer: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  marginBottom: 20,
-  gap: 15,
-  position: 'relative',
-  zIndex: 4000,
-},
-
-  // Financial Information specific styles
+  doubleFieldContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    gap: 15,
+    position: 'relative',
+    zIndex: 4000,
+  },
   costCurrencyRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1018,15 +1127,15 @@ errorText: {
     gap: 15,
   },
   costInputWrapper: {
-    flex: 1, // Takes 3/4 of space
+    flex: 1,
   },
   costInput: {
     marginBottom: 0,
   },
   currencyDropdownWrapper: {
-  flex: 1,
-  zIndex: 5000,
-},
+    flex: 1,
+    zIndex: 5000,
+  },
   currencyLabel: {
     marginBottom: 8,
   },
@@ -1040,27 +1149,24 @@ errorText: {
     color: '#ef4b56',
   },
   input: {
-  borderWidth: 1,
-  borderColor: '#E0E0E0',
-  borderRadius: 8,
-  paddingHorizontal: 12,
-  fontSize: 14,
-  backgroundColor: '#FFF',
-  height: 50,        // ⭐ same height
-  color: '#333', 
-  
-},
-  // Custom Dropdown Styles
-dropdown: {
-  borderWidth: 1,
-  borderColor: '#E0E0E0',
-  borderRadius: 8,
-  height: 50,
-  backgroundColor: '#FFF',
-  paddingHorizontal: 14,
-  justifyContent: 'center',
-},
-
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    fontSize: 14,
+    backgroundColor: '#FFF',
+    height: 50,
+    color: '#333',
+  },
+  dropdown: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 8,
+    height: 50,
+    backgroundColor: '#FFF',
+    paddingHorizontal: 14,
+    justifyContent: 'center',
+  },
   dropdownText: {
     fontSize: 14,
     color: '#333',
@@ -1105,9 +1211,7 @@ dropdown: {
   },
   saveButtonContainer: {
     marginTop: -10,
-    
     alignItems: 'center',
-    
   },
   saveButton: {
     backgroundColor: '#ef4b56',

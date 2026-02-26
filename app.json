@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "kosoapplication123",
-    "slug": "koso",
+    "name": "sandy_b",
+    "slug": "kosoapplication123",
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "leakage",
@@ -51,9 +51,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "e749d539-dbef-498e-b565-a78bc8f92496"
+        "projectId": "303b944c-4510-4888-85b5-e552423675e5"
       }
     },
-    "owner": "kosoapplication123"
+    "owner": "sandy_b"
   }
 }

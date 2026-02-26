@@ -578,17 +578,7 @@ export default function LoginScreen() {
                       </Text>
                     </TouchableOpacity>
                     
-                    <TouchableOpacity 
-                      onPress={handleForgotPassword}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={[
-                        styles.forgotPasswordText,
-                        { fontSize: getTextFontSize('forgotPassword') }
-                      ]}>
-                        Forgot Password
-                      </Text>
-                    </TouchableOpacity>
+                    
                   </View>
 
                   {/* Login Button */}

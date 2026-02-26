@@ -2117,10 +2117,16 @@ interface InputErrors {
   [key: string]: string | undefined;
 }
 
+interface FieldWarnings {
+  [key: string]: string[];
+}
+
 interface ValidationResult {
   warnings: string[];
+  fieldWarnings: FieldWarnings;
   leakRateOutput: string | null;
   shouldCalculate: boolean;
+  missingFields: string[];
 }
 
 export default function CalculatorScreen() {
@@ -2139,7 +2145,6 @@ export default function CalculatorScreen() {
     t1Unit: paramT1Unit,
     wcrhUnit,
     heatRateValue,
-    plantMCR,
     plantType,
     criticalType,
     currency: paramCurrency,
@@ -2147,6 +2152,8 @@ export default function CalculatorScreen() {
 
   // Modal state
   const [modalVisible, setModalVisible] = useState(false);
+  const [showMissingFieldsModal, setShowMissingFieldsModal] = useState(false);
+  const [missingFields, setMissingFields] = useState<string[]>([]);
 
   // Input states
   const [P1, setP1] = useState("");
@@ -2159,9 +2166,21 @@ export default function CalculatorScreen() {
   const [D2, setD2] = useState("");
   const [tw, setTw] = useState("");
   const [ww, setWw] = useState("");
+  const [showOutput, setShowOutput] = useState(false);
+
+  // Field-specific warnings state
+  const [fieldWarnings, setFieldWarnings] = useState<FieldWarnings>({
+    P1: [],
+    P2: [],
+    T1: [],
+    T2p: [],
+    TCRH: [],
+    Tmix: [],
+    WCRH: [],
+    D2: [],
+  });
 
   // Unit states
-  const [showOutput, setShowOutput] = useState(false);
   const [open, setOpen] = useState(false);
   const [wcrUnit, setWcrUnit] = useState<"T/HR" | "KG/S" | "KPPH/HR" | "LB/S">("T/HR");
   const [items, setItems] = useState([
@@ -2197,7 +2216,7 @@ export default function CalculatorScreen() {
   const [result, setResult] = useState("0.00");
   const [hasWarning, setHasWarning] = useState(false);
   const [inputErrors, setInputErrors] = useState<InputErrors>({});
-const [customCurrency, setCustomCurrency] = useState("");
+  const [customCurrency, setCustomCurrency] = useState("");
   const [calculatedResults, setCalculatedResults] = useState({
     leakRate: "0.00",
     mwLoss: "0.00",
@@ -2219,16 +2238,112 @@ const [customCurrency, setCustomCurrency] = useState("");
     if (paramT1Unit === "deg C") setT1Unit("C");
     if (paramT1Unit === "deg F") setT1Unit("F");
     if (wcrhUnit) setWcrUnit(wcrhUnit as any);
-      if (paramCurrency) setCurrency(paramCurrency);
-  if (parsedPowerStationData.sellPricePerMWh) 
-    setSellPricePerMWh(parsedPowerStationData.sellPricePerMWh);
-  if (parsedPowerStationData.productionCost) 
-    setProductionCost(parsedPowerStationData.productionCost);
-  if (parsedPowerStationData.heatRateValue) 
-    setHeatRateValue(parsedPowerStationData.heatRateValue);
-  if (parsedPowerStationData.pipeDiaUnit) 
-    setPipeDiaUnit(parsedPowerStationData.pipeDiaUnit);
-}, []);
+    if (paramCurrency) setCurrency(paramCurrency);
+    if (parsedPowerStationData.sellPricePerMWh) 
+      setSellPricePerMWh(parsedPowerStationData.sellPricePerMWh);
+    if (parsedPowerStationData.productionCost) 
+      setProductionCost(parsedPowerStationData.productionCost);
+    if (parsedPowerStationData.heatRateValue) 
+      setHeatRateValue(parsedPowerStationData.heatRateValue);
+    if (parsedPowerStationData.pipeDiaUnit) 
+      setPipeDiaUnit(parsedPowerStationData.pipeDiaUnit);
+  }, []);
+
+  // Real-time validation function for individual fields based on the image
+  const validateField = (fieldName: string, value: string, allValues?: any): string[] => {
+    const fieldSpecificWarnings: string[] = [];
+    const numValue = Number.parseFloat(value) || 0;
+    
+    if (!value) {
+      return fieldSpecificWarnings; // Don't show warnings for empty fields in real-time
+    }
+
+    const p1Value = Number.parseFloat(allValues?.P1 || P1) || 0;
+    const p2Value = Number.parseFloat(allValues?.P2 || P2) || 0;
+    const tcrhValue = Number.parseFloat(allValues?.TCRH || TCRH) || 0;
+    const tmixValue = Number.parseFloat(allValues?.Tmix || Tmix) || 0;
+
+    switch (fieldName) {
+      case 'P1':
+        if (numValue < 80) fieldSpecificWarnings.push("P1 out of bounds (LOW) (80-280)");
+        if (numValue > 280) fieldSpecificWarnings.push("P1 out of bounds (HIGH) (80-280)");
+        break;
+      case 'P2':
+        if (numValue < 20) fieldSpecificWarnings.push("P-CRH out of bounds (LOW) (20-60)");
+        if (numValue > 60) fieldSpecificWarnings.push("P-CRH out of bounds (HIGH) (20-60)");
+        
+        // Check P1/P2 ratio if both values exist
+        if (p1Value > 0 && numValue > 0) {
+          const ratio = p1Value / numValue;
+          if (ratio < 2) fieldSpecificWarnings.push("(P1/P-CRH) ratio out of bounds (LOW) (2-6)");
+          if (ratio > 6) fieldSpecificWarnings.push("(P1/P-CRH) ratio out of bounds (HIGH) (2-6)");
+        }
+        break;
+      case 'T1':
+        if (numValue < 500) fieldSpecificWarnings.push("T1 out of bounds (LOW) (500-600)");
+        if (numValue > 600) fieldSpecificWarnings.push("T1 out of bounds (HIGH) (500-600)");
+        break;
+      case 'T2p':
+        if (numValue < 460) fieldSpecificWarnings.push("T2p out of bounds (LOW) (460-560)");
+        if (numValue > 560) fieldSpecificWarnings.push("T2p out of bounds (HIGH) (460-560)");
+        break;
+      case 'TCRH':
+        if (numValue < 300) fieldSpecificWarnings.push("TCRH out of bounds (LOW) (300-425)");
+        if (numValue > 425) fieldSpecificWarnings.push("TCRH out of bounds (HIGH) (300-425)");
+        
+        // Check TCRH vs Tmix
+        if (tmixValue > 0) {
+          if (numValue - tmixValue > 2) {
+            fieldSpecificWarnings.push("T_m error (less than T_CRH)");
+          }
+          if (numValue - tmixValue > 4) {
+            fieldSpecificWarnings.push("Possible inaccuracy in T_CRH and/or T_m");
+          }
+        }
+        break;
+      case 'Tmix':
+        if (numValue < 300) fieldSpecificWarnings.push("T_m out of bounds (LOW) (300-450)");
+        if (numValue > 450) fieldSpecificWarnings.push("T_m out of bounds (HIGH) (300-450)");
+        
+        // Check Tmix vs TCRH
+        if (tcrhValue > 0) {
+          if (tcrhValue - numValue > 2) {
+            fieldSpecificWarnings.push("T_m error (less than T_CRH)");
+          }
+          if (tcrhValue - numValue > 4) {
+            fieldSpecificWarnings.push("Possible inaccuracy in T_CRH and/or T_m");
+          }
+        }
+        break;
+      case 'WCRH':
+        if (numValue < 500) fieldSpecificWarnings.push("W_CRH out of bounds (LOW) (500-2500)");
+        if (numValue > 2500) fieldSpecificWarnings.push("W_CRH out of bounds (HIGH) (500-2500)");
+        break;
+      case 'D2':
+        if (numValue < 300) fieldSpecificWarnings.push("D2 out of bounds (LOW) (300-600)");
+        if (numValue > 600) fieldSpecificWarnings.push("D2 out of bounds (HIGH) (300-600)");
+        break;
+    }
+    
+    return fieldSpecificWarnings;
+  };
+
+  // Update field warnings when any input changes
+  useEffect(() => {
+    const newFieldWarnings = { ...fieldWarnings };
+    const allValues = { P1, P2, T1, T2p, TCRH, Tmix, WCRH, D2 };
+    
+    newFieldWarnings.P1 = validateField('P1', P1, allValues);
+    newFieldWarnings.P2 = validateField('P2', P2, allValues);
+    newFieldWarnings.T1 = validateField('T1', T1, allValues);
+    newFieldWarnings.T2p = validateField('T2p', T2p, allValues);
+    newFieldWarnings.TCRH = validateField('TCRH', TCRH, allValues);
+    newFieldWarnings.Tmix = validateField('Tmix', Tmix, allValues);
+    newFieldWarnings.WCRH = validateField('WCRH', WCRH, allValues);
+    newFieldWarnings.D2 = validateField('D2', D2, allValues);
+    
+    setFieldWarnings(newFieldWarnings);
+  }, [P1, P2, T1, T2p, TCRH, Tmix, WCRH, D2]);
 
   const rememberY = (key: string) => (e: LayoutChangeEvent) => {
     fieldPositions[key] = e.nativeEvent.layout.y;
@@ -2293,11 +2408,43 @@ const [customCurrency, setCustomCurrency] = useState("");
     return { p1, p2, t1, t2p, t2, tmix, wcrh, d2, hrValue };
   };
 
+  // Check for missing required fields
+  const checkMissingFields = (): string[] => {
+    const missing: string[] = [];
+    
+    if (!P1) missing.push("P1 (HP Inlet Pressure)");
+    if (!P2) missing.push("P2 (CRH Outlet Pressure)");
+    if (!T1) missing.push("T1 (HP Steam)");
+    if (!T2p) missing.push("T2p");
+    if (!TCRH) missing.push("TCRH");
+    if (!Tmix) missing.push("T-MIX");
+    if (!WCRH) missing.push("W-CRH");
+    if (!D2) missing.push("D2");
+    
+    return missing;
+  };
+
   // Validation function based on the image
   const validateInputs = (): ValidationResult => {
     const warnings: string[] = [];
+    const fieldSpecificWarnings: FieldWarnings = {
+      P1: [], P2: [], T1: [], T2p: [], TCRH: [], Tmix: [], WCRH: [], D2: []
+    };
     let leakRateOutput: string | null = null;
     let shouldCalculate = true;
+    let missingFieldsList: string[] = [];
+
+    // First check for missing fields
+    missingFieldsList = checkMissingFields();
+    if (missingFieldsList.length > 0) {
+      return { 
+        warnings: [], 
+        fieldWarnings: fieldSpecificWarnings, 
+        leakRateOutput: null, 
+        shouldCalculate: false,
+        missingFields: missingFieldsList 
+      };
+    }
 
     const p1 = Number.parseFloat(P1) || 0;
     const p2 = Number.parseFloat(P2) || 0;
@@ -2307,28 +2454,17 @@ const [customCurrency, setCustomCurrency] = useState("");
     const tmix = Number.parseFloat(Tmix) || 0;
     const wcrh = Number.parseFloat(WCRH) || 0;
     const d2 = Number.parseFloat(D2) || 0;
-    const plantMCRNum = Number.parseFloat(plantMCR) || 0;
-    const hrNum = Number.parseFloat(heatRateValue) || 0;
-
-    // Check for empty fields
-    if (!P1) { warnings.push("P1 is required"); shouldCalculate = false; }
-    if (!P2) { warnings.push("P2 is required"); shouldCalculate = false; }
-    if (!T1) { warnings.push("T1 is required"); shouldCalculate = false; }
-    if (!T2p) { warnings.push("T2p is required"); shouldCalculate = false; }
-    if (!TCRH) { warnings.push("TCRH is required"); shouldCalculate = false; }
-    if (!Tmix) { warnings.push("Tmix is required"); shouldCalculate = false; }
-    if (!WCRH) { warnings.push("WCRH is required"); shouldCalculate = false; }
-
-    if (!shouldCalculate) return { warnings, leakRateOutput, shouldCalculate };
 
     // P1 bounds (80-280 barA)
     if (p1 < 80) {
       warnings.push("P1 out of bounds (LOW) (80-280)");
+      fieldSpecificWarnings.P1.push("P1 out of bounds (LOW) (80-280)");
       leakRateOutput = "NA";
       shouldCalculate = false;
     }
     if (p1 > 280) {
       warnings.push("P1 out of bounds (HIGH) (80-280)");
+      fieldSpecificWarnings.P1.push("P1 out of bounds (HIGH) (80-280)");
       leakRateOutput = "NA";
       shouldCalculate = false;
     }
@@ -2336,11 +2472,13 @@ const [customCurrency, setCustomCurrency] = useState("");
     // P2 bounds (20-60 barA)
     if (p2 < 20) {
       warnings.push("P-CRH out of bounds (LOW) (20-60)");
+      fieldSpecificWarnings.P2.push("P-CRH out of bounds (LOW) (20-60)");
       leakRateOutput = "NA";
       shouldCalculate = false;
     }
     if (p2 > 60) {
       warnings.push("P-CRH out of bounds (HIGH) (20-60)");
+      fieldSpecificWarnings.P2.push("P-CRH out of bounds (HIGH) (20-60)");
       leakRateOutput = "NA";
       shouldCalculate = false;
     }
@@ -2350,11 +2488,13 @@ const [customCurrency, setCustomCurrency] = useState("");
       const ratio = p1 / p2;
       if (ratio < 2) {
         warnings.push("(P1/P-CRH) ratio out of bounds (LOW) (2-6)");
+        fieldSpecificWarnings.P2.push("(P1/P-CRH) ratio out of bounds (LOW) (2-6)");
         leakRateOutput = "NA";
         shouldCalculate = false;
       }
       if (ratio > 6) {
         warnings.push("(P1/P-CRH) ratio out of bounds (HIGH) (2-6)");
+        fieldSpecificWarnings.P2.push("(P1/P-CRH) ratio out of bounds (HIGH) (2-6)");
         leakRateOutput = "NA";
         shouldCalculate = false;
       }
@@ -2363,11 +2503,13 @@ const [customCurrency, setCustomCurrency] = useState("");
     // T1 bounds (500-600 °C)
     if (t1 < 500) {
       warnings.push("T1 out of bounds (LOW) (500-600)");
+      fieldSpecificWarnings.T1.push("T1 out of bounds (LOW) (500-600)");
       leakRateOutput = "NA";
       shouldCalculate = false;
     }
     if (t1 > 600) {
       warnings.push("T1 out of bounds (HIGH) (500-600)");
+      fieldSpecificWarnings.T1.push("T1 out of bounds (HIGH) (500-600)");
       leakRateOutput = "NA";
       shouldCalculate = false;
     }
@@ -2375,11 +2517,13 @@ const [customCurrency, setCustomCurrency] = useState("");
     // T2p bounds (460-560 °C)
     if (t2p < 460) {
       warnings.push("T2p out of bounds (LOW) (460-560)");
+      fieldSpecificWarnings.T2p.push("T2p out of bounds (LOW) (460-560)");
       leakRateOutput = "NA";
       shouldCalculate = false;
     }
     if (t2p > 560) {
       warnings.push("T2p out of bounds (HIGH) (460-560)");
+      fieldSpecificWarnings.T2p.push("T2p out of bounds (HIGH) (460-560)");
       leakRateOutput = "NA";
       shouldCalculate = false;
     }
@@ -2387,11 +2531,13 @@ const [customCurrency, setCustomCurrency] = useState("");
     // TCRH bounds (300-425 °C)
     if (tcrh < 300) {
       warnings.push("TCRH out of bounds (LOW) (300-425)");
+      fieldSpecificWarnings.TCRH.push("TCRH out of bounds (LOW) (300-425)");
       leakRateOutput = "NA";
       shouldCalculate = false;
     }
     if (tcrh > 425) {
       warnings.push("TCRH out of bounds (HIGH) (300-425)");
+      fieldSpecificWarnings.TCRH.push("TCRH out of bounds (HIGH) (300-425)");
       leakRateOutput = "NA";
       shouldCalculate = false;
     }
@@ -2399,34 +2545,40 @@ const [customCurrency, setCustomCurrency] = useState("");
     // Tmix bounds (300-450 °C)
     if (tmix < 300) {
       warnings.push("T_M out of bounds (LOW) (300-450)");
+      fieldSpecificWarnings.Tmix.push("T_M out of bounds (LOW) (300-450)");
       leakRateOutput = "NA";
       shouldCalculate = false;
     }
     if (tmix > 450) {
       warnings.push("T_M out of bounds (HIGH) (300-450)");
+      fieldSpecificWarnings.Tmix.push("T_M out of bounds (HIGH) (300-450)");
       // Allow calculation but with warning
     }
 
     // Tmix vs TCRH checks
     if (tcrh - tmix > 2) {
-      warnings.push("T_M error (less than TCRH)");
+      warnings.push("T_m error (less than T_CRH)");
+      fieldSpecificWarnings.Tmix.push("T_m error (less than T_CRH)");
       leakRateOutput = "NA";
       shouldCalculate = false;
     }
     if (tcrh - tmix > 4) {
-      warnings.push("Possible inaccuracy in TCRH and/or T_M");
+      warnings.push("Possible inaccuracy in T_CRH and/or T_m");
+      fieldSpecificWarnings.Tmix.push("Possible inaccuracy in T_CRH and/or T_m");
       leakRateOutput = "0";
       shouldCalculate = false;
     }
 
     // WCRH bounds (500-2500 T/HR)
     if (wcrh < 500) {
-      warnings.push("WCRH out of bounds (LOW) (500-2500)");
+      warnings.push("W_CRH out of bounds (LOW) (500-2500)");
+      fieldSpecificWarnings.WCRH.push("W_CRH out of bounds (LOW) (500-2500)");
       leakRateOutput = "NA";
       shouldCalculate = false;
     }
     if (wcrh > 2500) {
-      warnings.push("WCRH out of bounds (HIGH) (500-2500)");
+      warnings.push("W_CRH out of bounds (HIGH) (500-2500)");
+      fieldSpecificWarnings.WCRH.push("W_CRH out of bounds (HIGH) (500-2500)");
       leakRateOutput = "NA";
       shouldCalculate = false;
     }
@@ -2434,57 +2586,45 @@ const [customCurrency, setCustomCurrency] = useState("");
     // D2 bounds (300-600 mm)
     if (d2 < 300) {
       warnings.push("D2 out of bounds (LOW) (300-600)");
+      fieldSpecificWarnings.D2.push("D2 out of bounds (LOW) (300-600)");
       leakRateOutput = "NA";
       shouldCalculate = false;
     }
     if (d2 > 600) {
       warnings.push("D2 out of bounds (HIGH) (300-600)");
+      fieldSpecificWarnings.D2.push("D2 out of bounds (HIGH) (300-600)");
       leakRateOutput = "NA";
       shouldCalculate = false;
     }
 
-    // Plant MCR bounds (100-1200 MW)
-    if (plantMCRNum < 100) {
-      warnings.push("Plant MCR out of bounds (LOW) (100-1200) - No action");
-    }
-    if (plantMCRNum > 1200) {
-      warnings.push("Plant MCR out of bounds (HIGH) (100-1200) - No action");
-    }
-
-    // Heat Rate bounds (6000-12000)
-    if (hrNum < 6000) {
-      warnings.push("Heat Rate out of bounds (LOW) – set to default");
-      setHeatRateValue(getDefaultHeatRate());
-    }
-    if (hrNum > 12000) {
-      warnings.push("Heat Rate out of bounds (HIGH) – set to default");
-      setHeatRateValue(getDefaultHeatRate());
-    }
-
-    return { warnings, leakRateOutput, shouldCalculate };
-  };
-
-  const getDefaultHeatRate = (): string => {
-    if (plantType === "ccpp") return "7500";
-    else if (criticalType === "supercritical") return "8400";
-    else return "9500";
-  };
-
-  const setHeatRateValue = (value: string) => {
-    // This function will be implemented to update heat rate
-    console.log("Setting heat rate to:", value);
+    return { 
+      warnings, 
+      fieldWarnings: fieldSpecificWarnings, 
+      leakRateOutput, 
+      shouldCalculate,
+      missingFields: [] 
+    };
   };
 
   const calculateLeakFlow = () => {
-    // Validate inputs first
+    // Check for missing fields first
+    const missing = checkMissingFields();
+    if (missing.length > 0) {
+      setMissingFields(missing);
+      setShowMissingFieldsModal(true);
+      return;
+    }
+
+    // Validate inputs
     const validation = validateInputs();
     
     if (validation.warnings.length > 0) {
       setWarnings(validation.warnings);
       setHasWarning(true);
       setResult(validation.leakRateOutput || "0.00");
-      setShowOutput(true);
-      setModalVisible(true); // Show modal even for warnings
+      
+      // Update field warnings
+      setFieldWarnings(validation.fieldWarnings);
       
       setCalculatedResults(prev => ({
         ...prev,
@@ -2496,6 +2636,11 @@ const [customCurrency, setCustomCurrency] = useState("");
       return;
     }
 
+    // If no warnings, proceed with calculation
+    performCalculation();
+  };
+
+  const performCalculation = () => {
     // Convert units for calculation
     const converted = convertUnits();
     const { p1, p2, t1, t2p, t2, tmix, wcrh, d2, hrValue } = converted;
@@ -2526,7 +2671,7 @@ const [customCurrency, setCustomCurrency] = useState("");
     
     const mwLoss = 0.9 * (finalCorrectedLeakRate / 3.6) * ((CpstH * t1) - (CpstL * t2));
     
-    const mcrNum = parseFloat(plantMCR || "0");
+    const mcrNum = 500; // Default MCR value
     let hrPenalty = mcrNum > 0 ? hrValue * (mwLoss / mcrNum) : 0;
     
     const productionLossPerYear = mwLoss * 8000;
@@ -2580,9 +2725,13 @@ const [customCurrency, setCustomCurrency] = useState("");
     setResult("0.00");
     setWarnings([]);
     setHasWarning(false);
+    setFieldWarnings({
+      P1: [], P2: [], T1: [], T2p: [], TCRH: [], Tmix: [], WCRH: [], D2: []
+    });
     setInputErrors({});
     setShowOutput(false);
     setModalVisible(false);
+    setShowMissingFieldsModal(false);
     scrollToTop();
   };
 
@@ -2591,47 +2740,69 @@ const [customCurrency, setCustomCurrency] = useState("");
   };
 
   const calculateAndSave = async () => {
-  calculateLeakFlow();
-  
-  try {
-    const finalPayload = {
-      power_station_name: stationName,
-      pipe_dia_d2: pipeDiaD2,
-      pipe_dia_unit: pipeDiaUnit,
-      t2p: T2p,
-      p1: P1,
-      p1_unit: p1Unit,
-      t1: T1,
-      t1_unit: t1Unit,
-      p2: P2,
-      tcrh: TCRH,
-      w_crh: WCRH,
-      w_crh_unit: wcrUnit,
-      tw: tw,
-      ww: ww,
-      t_mix: Tmix,
-      plant_type: plantType,
-      critical_type: criticalType,
-      plant_mcr: plantMCR,
-      heat_rate_value: heatRateValue,
-      heat_rate_unit: heatRateUnit,
-      production_cost: productionCost,
-      production_cost_currency: currency,
-      custom_currency: currency === "custom" ? customCurrency : currency,
-      sell_price_per_mwh: sellPricePerMWh
-    };
-
-    console.log("Saving payload:", finalPayload); // For debugging
+    calculateLeakFlow();
     
-    const response = await api.post("/power-stations/", finalPayload);
-    console.log("Save response:", response.data);
-  } catch (error: any) {
-    console.log("BACKEND ERROR =>", error.response?.data);
-  }
-};
+    try {
+      const finalPayload = {
+        power_station_name: stationName,
+        pipe_dia_d2: pipeDiaD2,
+        pipe_dia_unit: pipeDiaUnit,
+        t2p: T2p,
+        p1: P1,
+        p1_unit: p1Unit,
+        t1: T1,
+        t1_unit: t1Unit,
+        p2: P2,
+        tcrh: TCRH,
+        w_crh: WCRH,
+        w_crh_unit: wcrUnit,
+        tw: tw,
+        ww: ww,
+        t_mix: Tmix,
+        plant_type: plantType,
+        critical_type: criticalType,
+        heat_rate_value: heatRateValue,
+        heat_rate_unit: heatRateUnit,
+        production_cost: productionCost,
+        production_cost_currency: currency,
+        custom_currency: currency === "custom" ? customCurrency : currency,
+        sell_price_per_mwh: sellPricePerMWh
+      };
+
+      console.log("Saving payload:", finalPayload); // For debugging
+      
+      const response = await api.post("/power-stations/", finalPayload);
+      console.log("Save response:", response.data);
+    } catch (error: any) {
+      console.log("BACKEND ERROR =>", error.response?.data);
+    }
+  };
 
   const closeModal = () => {
     setModalVisible(false);
+  };
+
+  const closeMissingFieldsModal = () => {
+    setShowMissingFieldsModal(false);
+  };
+
+  const setHeatRateValue = (value: string) => {
+    // This function will be implemented to update heat rate
+    console.log("Setting heat rate to:", value);
+  };
+
+  // Render warning below a field
+  const renderFieldWarning = (fieldName: string) => {
+    if (fieldWarnings[fieldName] && fieldWarnings[fieldName].length > 0) {
+      return (
+        <View style={styles.fieldWarningContainer}>
+          {fieldWarnings[fieldName].map((warning, index) => (
+            <Text key={index} style={styles.fieldWarningText}>⚠ {warning}</Text>
+          ))}
+        </View>
+      );
+    }
+    return null;
   };
 
   return (
@@ -2662,19 +2833,20 @@ const [customCurrency, setCustomCurrency] = useState("");
           <Text style={styles.sectionTitle}>APPLICATION - HP BYPASS</Text>
 
           {/* P1 and T1 Row */}
-          <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
+          <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
             <View style={{ flex: 1 }} onLayout={rememberY("P1")}>
               <Text style={styles.inputLabel}>P1 (HP Inlet Pressure)</Text>
               <TextInput
-                style={[styles.input, warnings.some(w => w.includes("P1")) && styles.inputError]}
+                style={[styles.input, fieldWarnings.P1.length > 0 && styles.inputError]}
                 keyboardType="numeric"
                 value={P1}
                 onChangeText={setP1}
                 placeholder="00"
                 placeholderTextColor="#FF4D57"
               />
+              {renderFieldWarning('P1')}
             </View>
-            <View style={{ width: 90, marginLeft: 6 }}>
+            <View style={{ width: 90, marginLeft: 6 ,marginTop: 14}}>
               <Text style={styles.inputLabel}>Unit</Text>
               <DropDownPicker
                 open={openP1}
@@ -2691,15 +2863,16 @@ const [customCurrency, setCustomCurrency] = useState("");
             <View style={{ flex: 1, marginLeft: 8 }} onLayout={rememberY("T1")}>
               <Text style={styles.inputLabel}>T1 (HP Steam)</Text>
               <TextInput
-                style={[styles.input, warnings.some(w => w.includes("T1")) && styles.inputError]}
+                style={[styles.input, fieldWarnings.T1.length > 0 && styles.inputError]}
                 keyboardType="numeric"
                 value={T1}
                 onChangeText={setT1}
                 placeholder="00"
                 placeholderTextColor="#FF4D57"
               />
+              {renderFieldWarning('T1')}
             </View>
-            <View style={{ width: 90, marginLeft: 6 }}>
+            <View style={{ width: 90, marginLeft: 6,marginTop: 14}}>
               <Text style={styles.inputLabel}>Unit</Text>
               <DropDownPicker
                 open={openT1}
@@ -2720,13 +2893,14 @@ const [customCurrency, setCustomCurrency] = useState("");
             <View onLayout={rememberY("T2p")} style={styles.inputWrapper}>
               <Text style={styles.inputLabel}>T2p</Text>
               <TextInput
-                style={[styles.input, warnings.some(w => w.includes("T2p")) && styles.inputError]}
+                style={[styles.input, fieldWarnings.T2p.length > 0 && styles.inputError]}
                 keyboardType="numeric"
                 value={T2p}
                 onChangeText={setT2p}
                 placeholder="00"
                 placeholderTextColor="#FF4D57"
               />
+              {renderFieldWarning('T2p')}
             </View>
           </View>
 
@@ -2735,24 +2909,26 @@ const [customCurrency, setCustomCurrency] = useState("");
             <View onLayout={rememberY("P2")} style={styles.inputWrapper}>
               <Text style={styles.inputLabel}>P2 (CRH Outlet Pressure)</Text>
               <TextInput
-                style={[styles.input, warnings.some(w => w.includes("P-CRH")) && styles.inputError]}
+                style={[styles.input, fieldWarnings.P2.length > 0 && styles.inputError]}
                 keyboardType="numeric"
                 value={P2}
                 onChangeText={setP2}
                 placeholder="00"
                 placeholderTextColor="#FF4D57"
               />
+              {renderFieldWarning('P2')}
             </View>
             <View onLayout={rememberY("TCRH")} style={styles.inputWrapper}>
               <Text style={styles.inputLabel}>TCRH</Text>
               <TextInput
-                style={[styles.input, warnings.some(w => w.includes("TCRH")) && styles.inputError]}
+                style={[styles.input, fieldWarnings.TCRH.length > 0 && styles.inputError]}
                 keyboardType="numeric"
                 value={TCRH}
                 onChangeText={setTCRH}
                 placeholder="00"
                 placeholderTextColor="#FF4D57"
               />
+              {renderFieldWarning('TCRH')}
             </View>
           </View>
 
@@ -2761,13 +2937,14 @@ const [customCurrency, setCustomCurrency] = useState("");
             <View onLayout={rememberY("WCRH")} style={styles.inputWrapper}>
               <Text style={styles.inputLabel}>W-CRH</Text>
               <TextInput
-                style={[styles.input, warnings.some(w => w.includes("WCRH")) && styles.inputError]}
+                style={[styles.input, fieldWarnings.WCRH.length > 0 && styles.inputError]}
                 keyboardType="numeric"
                 value={WCRH}
                 onChangeText={setWCRH}
                 placeholder="00"
                 placeholderTextColor="#FF4D57"
               />
+              {renderFieldWarning('WCRH')}
             </View>
             <View onLayout={rememberY("Unit")} style={{ flex: 1, marginRight: 8, zIndex: 3000 }}>
               <Text style={styles.inputLabels}>Unit</Text>
@@ -2788,6 +2965,8 @@ const [customCurrency, setCustomCurrency] = useState("");
               />
             </View>
           </View>
+
+         
 
           {/* Tw and Ww */}
           <View style={styles.row}>
@@ -2820,17 +2999,18 @@ const [customCurrency, setCustomCurrency] = useState("");
             <View onLayout={rememberY("Tmix")} style={styles.inputWrapper}>
               <Text style={styles.inputLabel}>T-MIX</Text>
               <TextInput
-                style={[styles.input, warnings.some(w => w.includes("T_M")) && styles.inputError]}
+                style={[styles.input, fieldWarnings.Tmix.length > 0 && styles.inputError]}
                 keyboardType="numeric"
                 value={Tmix}
                 onChangeText={setTmix}
                 placeholder="00"
                 placeholderTextColor="#FF4D57"
               />
+              {renderFieldWarning('Tmix')}
             </View>
           </View>
 
-          {/* Warning Messages */}
+          {/* Warning Messages - Only for non-field specific warnings */}
           {warnings.length > 0 && (
             <Reanimated.View entering={FadeIn.duration(500)} style={styles.warningContainer}>
               {warnings.map((warning, index) => (
@@ -2864,6 +3044,43 @@ const [customCurrency, setCustomCurrency] = useState("");
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Missing Fields Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showMissingFieldsModal}
+        onRequestClose={closeMissingFieldsModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: '#FFF3CD' }]}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: '#856404' }]}>Missing Required Fields</Text>
+              <TouchableOpacity onPress={closeMissingFieldsModal} style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>×</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.modalBody}>
+              <Text style={{ color: '#856404', fontSize: 14, marginBottom: 10 }}>
+                Please fill in the following required fields:
+              </Text>
+              {missingFields.map((field, index) => (
+                <View key={index} style={styles.missingFieldItem}>
+                  <Text style={styles.missingFieldText}>• {field}</Text>
+                </View>
+              ))}
+            </View>
+
+            <TouchableOpacity 
+              style={[styles.modalCloseBtn, { backgroundColor: '#856404' }]} 
+              onPress={closeMissingFieldsModal}
+            >
+              <Text style={styles.modalCloseText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Results Modal */}
       <Modal
@@ -2951,6 +3168,8 @@ const styles = StyleSheet.create({
   diagramImage: { width: '105%', height: '100%' },
   warningContainer: { marginTop: 10, marginBottom: 10, padding: 10, backgroundColor: "#FFF3CD", borderRadius: 5, borderWidth: 1, borderColor: "#FFE58F" },
   warningText: { color: "#856404", fontSize: 12, marginVertical: 2 },
+  fieldWarningContainer: { marginTop: 2, marginBottom: 4, paddingHorizontal: 8 },
+  fieldWarningText: { color: "#D60000", fontSize: 10, fontStyle: "italic" },
   outputBox: { marginTop: 15, marginBottom: 10, alignItems: "center", backgroundColor: "rgba(255, 77, 87, 0.1)", borderColor: "#FF4D57", borderWidth: 1, padding: 10, borderRadius: 5, width: "95%", alignSelf: "center" },
   outputInnerBox: { flexDirection: "row", alignItems: "center", justifyContent: "center" },
   outputLabel: { fontSize: 16, fontWeight: "bold", color: "#000000", marginRight: 5 },
@@ -3061,8 +3280,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginVertical: 2,
   },
+  missingFieldItem: {
+    padding: 8,
+    backgroundColor: '#FFE8E8',
+    borderRadius: 5,
+    marginVertical: 3,
+  },
+  missingFieldText: {
+    color: '#856404',
+    fontSize: 13,
+  },
 });
-
 
 
 
