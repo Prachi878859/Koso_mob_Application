@@ -2102,6 +2102,7 @@ import {
 import DropDownPicker from "react-native-dropdown-picker";
 import Reanimated, { FadeIn } from "react-native-reanimated";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { Ionicons } from '@expo/vector-icons';
 import api from "./axiosInstance";
 
 // ⚠️ REPLACE THIS WITH YOUR ACTUAL IMAGE IMPORT
@@ -2148,6 +2149,11 @@ export default function CalculatorScreen() {
     plantType,
     criticalType,
     currency: paramCurrency,
+    pipeDiaUnit: paramPipeDiaUnit,
+    sellPricePerMWh: paramSellPricePerMWh,
+    productionCost: paramProductionCost,
+    productionCostCurrency: paramProductionCostCurrency,
+    customCurrency: paramCustomCurrency,
   } = parsedPowerStationData;
 
   // Modal state
@@ -2210,13 +2216,13 @@ export default function CalculatorScreen() {
   const [productionCost, setProductionCost] = useState("");
   const [sellPricePerMWh, setSellPricePerMWh] = useState("");
   const [pipeDiaUnit, setPipeDiaUnit] = useState("MM");
+  const [customCurrency, setCustomCurrency] = useState("");
 
   // Warning and result states
   const [warnings, setWarnings] = useState<string[]>([]);
   const [result, setResult] = useState("0.00");
   const [hasWarning, setHasWarning] = useState(false);
   const [inputErrors, setInputErrors] = useState<InputErrors>({});
-  const [customCurrency, setCustomCurrency] = useState("");
   const [calculatedResults, setCalculatedResults] = useState({
     leakRate: "0.00",
     mwLoss: "0.00",
@@ -2231,22 +2237,30 @@ export default function CalculatorScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const fieldPositions = useRef<FieldPositions>({}).current;
 
+  // Initialize all values from passed parameters
   useEffect(() => {
+    // Basic plant data
     if (pipeDiaD2) setD2(pipeDiaD2);
+    if (paramPipeDiaUnit) setPipeDiaUnit(paramPipeDiaUnit);
+    
+    // Unit settings
     if (paramP1Unit === "barA") setP1Unit("bara");
     if (paramP1Unit === "psiA") setP1Unit("psia");
     if (paramT1Unit === "deg C") setT1Unit("C");
     if (paramT1Unit === "deg F") setT1Unit("F");
     if (wcrhUnit) setWcrUnit(wcrhUnit as any);
+    
+    // Financial data
     if (paramCurrency) setCurrency(paramCurrency);
-    if (parsedPowerStationData.sellPricePerMWh) 
-      setSellPricePerMWh(parsedPowerStationData.sellPricePerMWh);
-    if (parsedPowerStationData.productionCost) 
-      setProductionCost(parsedPowerStationData.productionCost);
-    if (parsedPowerStationData.heatRateValue) 
-      setHeatRateValue(parsedPowerStationData.heatRateValue);
-    if (parsedPowerStationData.pipeDiaUnit) 
-      setPipeDiaUnit(parsedPowerStationData.pipeDiaUnit);
+    if (paramSellPricePerMWh) setSellPricePerMWh(paramSellPricePerMWh);
+    if (paramProductionCost) setProductionCost(paramProductionCost);
+    if (paramProductionCostCurrency) setCurrency(paramProductionCostCurrency);
+    if (paramCustomCurrency) setCustomCurrency(paramCustomCurrency);
+    
+    // Heat rate
+    if (heatRateValue) {
+      setHeatRateValue(heatRateValue);
+    }
   }, []);
 
   // Real-time validation function for individual fields based on the image
@@ -2352,6 +2366,35 @@ export default function CalculatorScreen() {
   const scrollToTop = () => {
     requestAnimationFrame(() => {
       scrollRef.current?.scrollTo({ y: 0, animated: true });
+    });
+  };
+
+  // Navigate back to AdditionalUserInputsScreen with all current data
+  const goBackToEdit = () => {
+    // Prepare all data to send back
+    const powerStationData = {
+      stationName: stationName,
+      pipeDiaD2: D2,
+      pipeDiaUnit: pipeDiaUnit,
+      p1Unit: p1Unit === "bara" ? "barA" : "psiA",
+      t1Unit: t1Unit === "C" ? "deg C" : "deg F",
+      wcrhUnit: wcrUnit,
+      heatRateValue: heatRateValue,
+      plantType: plantType,
+      criticalType: criticalType,
+      currency: currency,
+      sellPricePerMWh: sellPricePerMWh,
+      productionCost: productionCost,
+      productionCostCurrency: currency,
+      customCurrency: customCurrency,
+    };
+
+    router.push({
+      pathname: "/Additional_user_inputs",
+      params: {
+        powerStationData: JSON.stringify(powerStationData),
+        fromCalculator: 'true' // Flag to indicate we're coming back from calculator
+      }
     });
   };
 
@@ -2745,7 +2788,7 @@ export default function CalculatorScreen() {
     try {
       const finalPayload = {
         power_station_name: stationName,
-        pipe_dia_d2: pipeDiaD2,
+        pipe_dia_d2: D2,
         pipe_dia_unit: pipeDiaUnit,
         t2p: T2p,
         p1: P1,
@@ -2808,6 +2851,10 @@ export default function CalculatorScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={goBackToEdit}>
+          <Ionicons name="arrow-back" size={24} color="#FF4D57" />
+          <Text style={styles.backButtonText}>Edit</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
@@ -2965,8 +3012,6 @@ export default function CalculatorScreen() {
               />
             </View>
           </View>
-
-         
 
           {/* Tw and Ww */}
           <View style={styles.row}>
@@ -3159,8 +3204,34 @@ export default function CalculatorScreen() {
 const styles = StyleSheet.create({
   scrollContent: { flexGrow: 1 },
   container: { backgroundColor: "#FFFFFF", padding: 15, flexGrow: 1 },
-  header: { backgroundColor: "#000000", paddingVertical: 10, paddingHorizontal: 18, width: "100%" },
-  logo: { fontSize: 26, fontWeight: "bold", color: "#FF4D57", marginTop: 10 },
+  header: { 
+    backgroundColor: "#000000", 
+    paddingVertical: 10, 
+    paddingHorizontal: 18, 
+    width: "100%",
+    position: 'relative',
+  },
+  backButton: {
+    position: "absolute",
+    top: 10,
+    left: 15,
+    flexDirection: 'row',
+    alignItems: 'center',
+    zIndex: 20,
+  },
+  backButtonText: {
+    color: "#FF4D57",
+    fontSize: 16,
+    marginLeft: 5,
+    fontWeight: '500',
+  },
+  logo: { 
+    fontSize: 26, 
+    fontWeight: "bold", 
+    color: "#FF4D57", 
+    marginTop: 10,
+    textAlign: 'center',
+  },
   stationUnitContainer: { alignItems: "center" },
   station: { fontSize: 15, color: "#D3D3D3", fontWeight: "bold" },
   underline: { height: 1, width: "65%", backgroundColor: "#D3D3D3", marginVertical: 2 },
@@ -3174,7 +3245,7 @@ const styles = StyleSheet.create({
   outputInnerBox: { flexDirection: "row", alignItems: "center", justifyContent: "center" },
   outputLabel: { fontSize: 16, fontWeight: "bold", color: "#000000", marginRight: 5 },
   outputValueText: { color: "#066e2cff", fontSize: 18, fontWeight: "bold" },
-  logoutButton: { position: "absolute", top: 10, right: 5, padding: 20, zIndex: 10 },
+  logoutButton: { position: "absolute", top: 10, right: 15, zIndex: 10 },
   logoutText: { color: "#FF4D57", fontWeight: "bold", fontSize: 15 },
   sectionTitle: { backgroundColor: "#ECE9E9", padding: 10, fontSize: 15, color: "#FF4D57", marginVertical: 10, textAlign: "center", fontWeight: "bold" },
   row: { flexDirection: "row", justifyContent: "space-between", marginBottom: 10, overflow: "visible" },
@@ -3227,7 +3298,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#FF4D57',
+    color: '#ff4d50',
   },
   closeButton: {
     padding: 5,

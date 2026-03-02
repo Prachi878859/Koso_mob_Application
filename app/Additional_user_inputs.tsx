@@ -14,7 +14,7 @@ import {
   ActivityIndicator,
   Dimensions,
 } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Keyboard } from "react-native";
 
@@ -37,6 +37,25 @@ interface PlantData {
   production_cost_currency: string | null;
   custom_currency: string | null;
   sell_price_per_mwh: string | null;
+}
+
+interface PowerStationData {
+  stationName?: string;
+  pipeDiaD2?: string;
+  pipeDiaUnit?: string;
+  plantType?: string;
+  criticalType?: string;
+  plantMCR?: string;
+  heatRateValue?: string;
+  heatRateUnit?: string;
+  currency?: string;
+  sellPricePerMWh?: string;
+  productionCost?: string;
+  productionCostCurrency?: string;
+  customCurrency?: string;
+  p1Unit?: string;
+  t1Unit?: string;
+  wcrhUnit?: string;
 }
 
 type DropdownItem = {
@@ -104,21 +123,53 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
 /* ---------------- MAIN SCREEN ---------------- */
 
 export default function AdditionalUserInputsScreen() {
+  const params = useLocalSearchParams();
+  
+  // Check if we're coming back from calculator with data
+  const returningFromCalculator = params.fromCalculator === 'true';
+  const returnedData = params.powerStationData 
+    ? JSON.parse(params.powerStationData as string) as PowerStationData
+    : {};
+
   // Form states
   const [errors, setErrors] = useState<any>({});
   const [warnings, setWarnings] = useState<any>({});
-  const [powerStationName, setPowerStationName] = useState('');
-  const [pipeDiaD2, setPipeDiaD2] = useState('');
-  const [pipeDiaUnit, setPipeDiaUnit] = useState<string | null>('MM');
-  const [plantType, setPlantType] = useState<string | null>(null);
-  const [criticalType, setCriticalType] = useState<string | null>(null);
-  const [plantMCR, setPlantMCR] = useState('');
-  const [heatRateValue, setHeatRateValue] = useState('');
-  const [heatRateUnit, setHeatRateUnit] = useState<string | null>('kJ/kW-h');
-  const [productionCost, setProductionCost] = useState('');
-  const [productionCostCurrency, setProductionCostCurrency] = useState<string | null>('USD');
-  const [customCurrency, setCustomCurrency] = useState('');
-  const [sellPricePerMWh, setSellPricePerMWh] = useState('');
+  const [powerStationName, setPowerStationName] = useState(
+    returnedData.stationName || ''
+  );
+  const [pipeDiaD2, setPipeDiaD2] = useState(
+    returnedData.pipeDiaD2 || ''
+  );
+  const [pipeDiaUnit, setPipeDiaUnit] = useState<string | null>(
+    returnedData.pipeDiaUnit || 'MM'
+  );
+  const [plantType, setPlantType] = useState<string | null>(
+    returnedData.plantType || null
+  );
+  const [criticalType, setCriticalType] = useState<string | null>(
+    returnedData.criticalType || null
+  );
+  const [plantMCR, setPlantMCR] = useState(
+    returnedData.plantMCR || ''
+  );
+  const [heatRateValue, setHeatRateValue] = useState(
+    returnedData.heatRateValue || ''
+  );
+  const [heatRateUnit, setHeatRateUnit] = useState<string | null>(
+    returnedData.heatRateUnit || 'kJ/kW-h'
+  );
+  const [productionCost, setProductionCost] = useState(
+    returnedData.productionCost || ''
+  );
+  const [productionCostCurrency, setProductionCostCurrency] = useState<string | null>(
+    returnedData.productionCostCurrency || returnedData.currency || 'USD'
+  );
+  const [customCurrency, setCustomCurrency] = useState(
+    returnedData.customCurrency || ''
+  );
+  const [sellPricePerMWh, setSellPricePerMWh] = useState(
+    returnedData.sellPricePerMWh || ''
+  );
 
   // Dropdown states
   const [pipeDiaUnitOpen, setPipeDiaUnitOpen] = useState(false);
@@ -126,9 +177,9 @@ export default function AdditionalUserInputsScreen() {
   const [criticalTypeOpen, setCriticalTypeOpen] = useState(false);
   const [heatRateUnitOpen, setHeatRateUnitOpen] = useState(false);
   const [currencyOpen, setCurrencyOpen] = useState(false);
-  const [p1Unit, setP1Unit] = useState('barA');
-  const [t1Unit, setT1Unit] = useState('deg C');
-  const [wcrhUnit, setWcrhUnit] = useState('T/HR');
+  const [p1Unit, setP1Unit] = useState(returnedData.p1Unit || 'barA');
+  const [t1Unit, setT1Unit] = useState(returnedData.t1Unit || 'deg C');
+  const [wcrhUnit, setWcrhUnit] = useState(returnedData.wcrhUnit || 'T/HR');
 
   // UI states
   const [loading, setLoading] = useState(false);
@@ -241,6 +292,15 @@ export default function AdditionalUserInputsScreen() {
       showSub.remove();
       hideSub.remove();
     };
+  }, []);
+
+  // Show success message when returning from calculator
+  useEffect(() => {
+    if (returningFromCalculator) {
+      setShowSuccess(true);
+      // setSuccessMessage('Returned from calculator with your data');
+      setTimeout(() => setShowSuccess(false), 3000);
+    }
   }, []);
 
   /* ---------------- FORM HANDLERS ---------------- */
@@ -539,11 +599,15 @@ export default function AdditionalUserInputsScreen() {
                       criticalType: criticalType,
                       plantMCR: plantMCR,
                       heatRateValue: heatRateValue,
+                      heatRateUnit: heatRateUnit,
                       currency:
                         productionCostCurrency === "custom"
                           ? customCurrency
                           : productionCostCurrency,
                       sellPricePerMWh: sellPricePerMWh,
+                      productionCost: productionCost,
+                      productionCostCurrency: productionCostCurrency,
+                      customCurrency: customCurrency,
                       p1Unit,
                       t1Unit,
                       wcrhUnit,
@@ -570,11 +634,15 @@ export default function AdditionalUserInputsScreen() {
           criticalType: criticalType,
           plantMCR: plantMCR,
           heatRateValue: heatRateValue,
+          heatRateUnit: heatRateUnit,
           currency:
             productionCostCurrency === "custom"
               ? customCurrency
               : productionCostCurrency,
           sellPricePerMWh: sellPricePerMWh,
+          productionCost: productionCost,
+          productionCostCurrency: productionCostCurrency,
+          customCurrency: customCurrency,
           p1Unit,
           t1Unit,
           wcrhUnit,
