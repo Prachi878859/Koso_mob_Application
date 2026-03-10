@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://192.168.1.7:5000/api",  
-// baseURL: 'https://vlc.setlen.co.in/api',
+  // baseURL: "http://10.242.173.183:5000/api",  
+baseURL: 'https://koso.sparklerstech.com/api',
  
 headers: {
     "Content-Type": "application/json",

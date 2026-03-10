@@ -2160,6 +2160,7 @@ export default function CalculatorScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [showMissingFieldsModal, setShowMissingFieldsModal] = useState(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
+  const [initialCalculatorValues, setInitialCalculatorValues] = useState<any>(null);
 
   // Input states
   const [P1, setP1] = useState("");
@@ -2237,31 +2238,128 @@ export default function CalculatorScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const fieldPositions = useRef<FieldPositions>({}).current;
 
+  // Create a state to store all calculator input values
+const [calculatorInputs, setCalculatorInputs] = useState({
+  P1: "",
+  P2: "",
+  T1: "",
+  T2p: "",
+  TCRH: "",
+  Tmix: "",
+  WCRH: "",
+  D2: "",
+  tw: "",
+  ww: "",
+  p1Unit: "bara" as "bara" | "psia",
+  t1Unit: "C" as "C" | "F",
+  wcrUnit: "T/HR" as "T/HR" | "KG/S" | "KPPH/HR" | "LB/S"
+});
+
+// Update calculator inputs whenever any input changes
+useEffect(() => {
+  setCalculatorInputs({
+    P1, P2, T1, T2p, TCRH, Tmix, WCRH, D2, tw, ww,
+    p1Unit, t1Unit, wcrUnit
+  });
+}, [P1, P2, T1, T2p, TCRH, Tmix, WCRH, D2, tw, ww, p1Unit, t1Unit, wcrUnit]);
+
   // Initialize all values from passed parameters
-  useEffect(() => {
-    // Basic plant data
-    if (pipeDiaD2) setD2(pipeDiaD2);
-    if (paramPipeDiaUnit) setPipeDiaUnit(paramPipeDiaUnit);
-    
-    // Unit settings
-    if (paramP1Unit === "barA") setP1Unit("bara");
-    if (paramP1Unit === "psiA") setP1Unit("psia");
-    if (paramT1Unit === "deg C") setT1Unit("C");
-    if (paramT1Unit === "deg F") setT1Unit("F");
-    if (wcrhUnit) setWcrUnit(wcrhUnit as any);
-    
-    // Financial data
-    if (paramCurrency) setCurrency(paramCurrency);
-    if (paramSellPricePerMWh) setSellPricePerMWh(paramSellPricePerMWh);
-    if (paramProductionCost) setProductionCost(paramProductionCost);
-    if (paramProductionCostCurrency) setCurrency(paramProductionCostCurrency);
-    if (paramCustomCurrency) setCustomCurrency(paramCustomCurrency);
-    
-    // Heat rate
-    if (heatRateValue) {
-      setHeatRateValue(heatRateValue);
+// In CalculatorScreen.tsx, update the useEffect that initializes from params
+
+useEffect(() => {
+  console.log("Received params in calculator:", parsedPowerStationData);
+  
+  // Basic plant data
+  if (pipeDiaD2) setD2(pipeDiaD2);
+  if (paramPipeDiaUnit) setPipeDiaUnit(paramPipeDiaUnit);
+  
+  // Unit settings
+  if (paramP1Unit === "barA") setP1Unit("bara");
+  if (paramP1Unit === "psiA") setP1Unit("psia");
+  if (paramT1Unit === "deg C") setT1Unit("C");
+  if (paramT1Unit === "deg F") setT1Unit("F");
+  if (wcrhUnit) setWcrUnit(wcrhUnit as any);
+  
+  // Financial data
+  if (paramCurrency) setCurrency(paramCurrency);
+  if (paramSellPricePerMWh) setSellPricePerMWh(paramSellPricePerMWh);
+  if (paramProductionCost) setProductionCost(paramProductionCost);
+  if (paramProductionCostCurrency) setCurrency(paramProductionCostCurrency);
+  if (paramCustomCurrency) setCustomCurrency(paramCustomCurrency);
+  
+  // Heat rate
+  if (heatRateValue) {
+    setHeatRateValue(heatRateValue);
+  }
+
+  // RESTORE CALCULATOR VALUES - Check if we have saved calculator values
+  if (parsedPowerStationData.p1Value) {
+    console.log("Restoring P1 value:", parsedPowerStationData.p1Value);
+    setP1(parsedPowerStationData.p1Value);
+  }
+  if (parsedPowerStationData.p2Value) {
+    console.log("Restoring P2 value:", parsedPowerStationData.p2Value);
+    setP2(parsedPowerStationData.p2Value);
+  }
+  if (parsedPowerStationData.t1Value) {
+    console.log("Restoring T1 value:", parsedPowerStationData.t1Value);
+    setT1(parsedPowerStationData.t1Value);
+  }
+  if (parsedPowerStationData.t2pValue) {
+    console.log("Restoring T2p value:", parsedPowerStationData.t2pValue);
+    setT2p(parsedPowerStationData.t2pValue);
+  }
+  if (parsedPowerStationData.tcrhValue) {
+    console.log("Restoring TCRH value:", parsedPowerStationData.tcrhValue);
+    setTCRH(parsedPowerStationData.tcrhValue);
+  }
+  if (parsedPowerStationData.tmixValue) {
+    console.log("Restoring Tmix value:", parsedPowerStationData.tmixValue);
+    setTmix(parsedPowerStationData.tmixValue);
+  }
+  if (parsedPowerStationData.wcrhValue) {
+    console.log("Restoring WCRH value:", parsedPowerStationData.wcrhValue);
+    setWCRH(parsedPowerStationData.wcrhValue);
+  }
+  if (parsedPowerStationData.d2Value) {
+    console.log("Restoring D2 value:", parsedPowerStationData.d2Value);
+    setD2(parsedPowerStationData.d2Value);
+  }
+  if (parsedPowerStationData.twValue) {
+    console.log("Restoring Tw value:", parsedPowerStationData.twValue);
+    setTw(parsedPowerStationData.twValue);
+  }
+  if (parsedPowerStationData.wwValue) {
+    console.log("Restoring Ww value:", parsedPowerStationData.wwValue);
+    setWw(parsedPowerStationData.wwValue);
+  }
+}, []);
+
+useEffect(() => {
+  if (params.calculatorData) {
+    try {
+      const savedCalculatorData = JSON.parse(params.calculatorData as string);
+      setInitialCalculatorValues(savedCalculatorData);
+      
+      // Restore all calculator input values
+      setP1(savedCalculatorData.P1 || "");
+      setP2(savedCalculatorData.P2 || "");
+      setT1(savedCalculatorData.T1 || "");
+      setT2p(savedCalculatorData.T2p || "");
+      setTCRH(savedCalculatorData.TCRH || "");
+      setTmix(savedCalculatorData.Tmix || "");
+      setWCRH(savedCalculatorData.WCRH || "");
+      setD2(savedCalculatorData.D2 || "");
+      setTw(savedCalculatorData.tw || "");
+      setWw(savedCalculatorData.ww || "");
+      setP1Unit(savedCalculatorData.p1Unit || "bara");
+      setT1Unit(savedCalculatorData.t1Unit || "C");
+      setWcrUnit(savedCalculatorData.wcrUnit || "T/HR");
+    } catch (error) {
+      console.error("Error parsing calculator data:", error);
     }
-  }, []);
+  }
+}, [params.calculatorData]);
 
   // Real-time validation function for individual fields based on the image
   const validateField = (fieldName: string, value: string, allValues?: any): string[] => {
@@ -2369,34 +2467,65 @@ export default function CalculatorScreen() {
     });
   };
 
-  // Navigate back to AdditionalUserInputsScreen with all current data
-  const goBackToEdit = () => {
-    // Prepare all data to send back
-    const powerStationData = {
-      stationName: stationName,
-      pipeDiaD2: D2,
-      pipeDiaUnit: pipeDiaUnit,
-      p1Unit: p1Unit === "bara" ? "barA" : "psiA",
-      t1Unit: t1Unit === "C" ? "deg C" : "deg F",
-      wcrhUnit: wcrUnit,
-      heatRateValue: heatRateValue,
-      plantType: plantType,
-      criticalType: criticalType,
-      currency: currency,
-      sellPricePerMWh: sellPricePerMWh,
-      productionCost: productionCost,
-      productionCostCurrency: currency,
-      customCurrency: customCurrency,
-    };
+ // Update the goBackToEdit function to preserve all calculator values
+// In CalculatorScreen.tsx, update the goBackToEdit function
 
-    router.push({
-      pathname: "/Additional_user_inputs",
-      params: {
-        powerStationData: JSON.stringify(powerStationData),
-        fromCalculator: 'true' // Flag to indicate we're coming back from calculator
-      }
-    });
+const goBackToEdit = () => {
+  // Prepare all data to send back, including ALL calculator inputs
+  const powerStationData = {
+    // Basic plant data from first screen
+    stationName: stationName,
+    pipeDiaD2: D2,
+    pipeDiaUnit: pipeDiaUnit,
+    plantType: plantType,
+    criticalType: criticalType,
+    heatRateValue: heatRateValue,
+    heatRateUnit: heatRateUnit,
+    
+    // Financial data
+    currency: currency,
+    sellPricePerMWh: sellPricePerMWh,
+    productionCost: productionCost,
+    productionCostCurrency: currency,
+    customCurrency: customCurrency,
+    
+    // Calculator screen inputs - THESE WILL BE PRESERVED
+    p1Value: P1,
+    p2Value: P2,
+    t1Value: T1,
+    t2pValue: T2p,
+    tcrhValue: TCRH,
+    tmixValue: Tmix,
+    wcrhValue: WCRH,
+    d2Value: D2,
+    twValue: tw,
+    wwValue: ww,
+    
+    // Units
+    p1Unit: p1Unit === "bara" ? "barA" : "psiA",
+    t1Unit: t1Unit === "C" ? "deg C" : "deg F",
+    wcrhUnit: wcrUnit,
   };
+
+  console.log("Sending back to edit screen:", powerStationData); // Debug log
+
+  router.push({
+    pathname: "/Additional_user_inputs",
+    params: {
+      powerStationData: JSON.stringify(powerStationData),
+      fromCalculator: 'true' // Flag to indicate we're coming back from calculator
+    }
+  });
+};
+
+// Add this in CalculatorScreen to verify values are preserved when returning from edit
+
+useEffect(() => {
+  console.log("Current calculator values:", {
+    P1, P2, T1, T2p, TCRH, Tmix, WCRH, D2, tw, ww,
+    p1Unit, t1Unit, wcrUnit
+  });
+}, [P1, P2, T1, T2p, TCRH, Tmix, WCRH, D2, tw, ww, p1Unit, t1Unit, wcrUnit]);
 
   // Unit conversion function
   const convertUnits = () => {
@@ -2754,7 +2883,24 @@ export default function CalculatorScreen() {
     scrollToTop();
   };
 
-  const resetAll = () => {
+ const resetAll = () => {
+  if (initialCalculatorValues) {
+    // Reset to saved values instead of empty
+    setP1(initialCalculatorValues.P1 || "");
+    setP2(initialCalculatorValues.P2 || "");
+    setT1(initialCalculatorValues.T1 || "");
+    setT2p(initialCalculatorValues.T2p || "");
+    setTCRH(initialCalculatorValues.TCRH || "");
+    setTmix(initialCalculatorValues.Tmix || "");
+    setWCRH(initialCalculatorValues.WCRH || "");
+    setD2(initialCalculatorValues.D2 || "");
+    setTw(initialCalculatorValues.tw || "");
+    setWw(initialCalculatorValues.ww || "");
+    setP1Unit(initialCalculatorValues.p1Unit || "bara");
+    setT1Unit(initialCalculatorValues.t1Unit || "C");
+    setWcrUnit(initialCalculatorValues.wcrUnit || "T/HR");
+  } else {
+    // Regular reset to empty
     setP1("");
     setP2("");
     setT1("");
@@ -2765,18 +2911,20 @@ export default function CalculatorScreen() {
     setD2("");
     setTw("");
     setWw("");
-    setResult("0.00");
-    setWarnings([]);
-    setHasWarning(false);
-    setFieldWarnings({
-      P1: [], P2: [], T1: [], T2p: [], TCRH: [], Tmix: [], WCRH: [], D2: []
-    });
-    setInputErrors({});
-    setShowOutput(false);
-    setModalVisible(false);
-    setShowMissingFieldsModal(false);
-    scrollToTop();
-  };
+  }
+  
+  setResult("0.00");
+  setWarnings([]);
+  setHasWarning(false);
+  setFieldWarnings({
+    P1: [], P2: [], T1: [], T2p: [], TCRH: [], Tmix: [], WCRH: [], D2: []
+  });
+  setInputErrors({});
+  setShowOutput(false);
+  setModalVisible(false);
+  setShowMissingFieldsModal(false);
+  scrollToTop();
+};
 
   const handleLogout = () => {
     router.replace("/LoginScreen");
@@ -2853,7 +3001,7 @@ export default function CalculatorScreen() {
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={goBackToEdit}>
           <Ionicons name="arrow-back" size={24} color="#FF4D57" />
-          <Text style={styles.backButtonText}>Edit</Text>
+          <Text style={styles.backButtonText}>Back</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutText}>Logout</Text>

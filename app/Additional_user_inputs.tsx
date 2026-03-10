@@ -56,6 +56,17 @@ interface PowerStationData {
   p1Unit?: string;
   t1Unit?: string;
   wcrhUnit?: string;
+
+   p1Value?: string;
+  p2Value?: string;
+  t1Value?: string;
+  t2pValue?: string;
+  tcrhValue?: string;
+  tmixValue?: string;
+  wcrhValue?: string;
+  d2Value?: string;
+  twValue?: string;
+  wwValue?: string;
 }
 
 type DropdownItem = {
@@ -238,6 +249,22 @@ export default function AdditionalUserInputsScreen() {
     { label: 'LB/S', value: 'LB/S' },
   ];
 
+  // In Additional_user_inputs.tsx, add these state variables near your other useState declarations
+
+// Calculator values state to preserve when returning from calculator
+const [calculatorValues, setCalculatorValues] = useState({
+  p1Value: '',
+  p2Value: '',
+  t1Value: '',
+  t2pValue: '',
+  tcrhValue: '',
+  tmixValue: '',
+  wcrhValue: '',
+  d2Value: '',
+  twValue: '',
+  wwValue: ''
+});
+
   /* ---------------- DROPDOWN HANDLERS ---------------- */
 
   const closeAllDropdowns = () => {
@@ -294,14 +321,35 @@ export default function AdditionalUserInputsScreen() {
     };
   }, []);
 
-  // Show success message when returning from calculator
-  useEffect(() => {
-    if (returningFromCalculator) {
-      setShowSuccess(true);
-      // setSuccessMessage('Returned from calculator with your data');
-      setTimeout(() => setShowSuccess(false), 3000);
-    }
-  }, []);
+// In Additional_user_inputs.tsx, update the returning useEffect
+
+useEffect(() => {
+  if (returningFromCalculator && returnedData) {
+    console.log("Returned data from calculator:", returnedData);
+    
+    // Store calculator values
+    setCalculatorValues({
+      p1Value: returnedData.p1Value || '',
+      p2Value: returnedData.p2Value || '',
+      t1Value: returnedData.t1Value || '',
+      t2pValue: returnedData.t2pValue || '',
+      tcrhValue: returnedData.tcrhValue || '',
+      tmixValue: returnedData.tmixValue || '',
+      wcrhValue: returnedData.wcrhValue || '',
+      d2Value: returnedData.d2Value || '',
+      twValue: returnedData.twValue || '',
+      wwValue: returnedData.wwValue || ''
+    });
+    
+    // Update units
+    setP1Unit(returnedData.p1Unit || 'barA');
+    setT1Unit(returnedData.t1Unit || 'deg C');
+    setWcrhUnit(returnedData.wcrhUnit || 'T/HR');
+    
+    setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 3000);
+  }
+}, [returningFromCalculator]);
 
   /* ---------------- FORM HANDLERS ---------------- */
 
@@ -575,81 +623,104 @@ export default function AdditionalUserInputsScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
+
   const goToCalculator = () => {
-    if (!validateForm()) {
-      // If there are warnings but no errors, still allow navigation
-      if (Object.keys(errors).length === 0 && Object.keys(warnings).length > 0) {
-        // Show warning alert but allow navigation
-        Alert.alert(
-          'Warning',
-          'There are some values out of recommended range. Do you want to continue?',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { 
-              text: 'Continue', 
-              onPress: () => {
-                router.push({
-                  pathname: "/CalculatorScreen",
-                  params: {
-                    powerStationData: JSON.stringify({
-                      stationName: powerStationName,
-                      pipeDiaD2: pipeDiaD2,
-                      pipeDiaUnit: pipeDiaUnit,
-                      plantType: plantType,
-                      criticalType: criticalType,
-                      plantMCR: plantMCR,
-                      heatRateValue: heatRateValue,
-                      heatRateUnit: heatRateUnit,
-                      currency:
-                        productionCostCurrency === "custom"
-                          ? customCurrency
-                          : productionCostCurrency,
-                      sellPricePerMWh: sellPricePerMWh,
-                      productionCost: productionCost,
-                      productionCostCurrency: productionCostCurrency,
-                      customCurrency: customCurrency,
-                      p1Unit,
-                      t1Unit,
-                      wcrhUnit,
-                    }),
-                  },
-                });
-              }
+  if (!validateForm()) {
+    if (Object.keys(errors).length === 0 && Object.keys(warnings).length > 0) {
+      Alert.alert(
+        'Warning',
+        'There are some values out of recommended range. Do you want to continue?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { 
+            text: 'Continue', 
+            onPress: () => {
+              router.push({
+                pathname: "/CalculatorScreen",
+                params: {
+  powerStationData: JSON.stringify({
+    // Basic plant data
+    stationName: powerStationName,
+    pipeDiaD2: pipeDiaD2,
+    pipeDiaUnit: pipeDiaUnit,
+    plantType: plantType,
+    criticalType: criticalType,
+    plantMCR: plantMCR,
+    heatRateValue: heatRateValue,
+    heatRateUnit: heatRateUnit,
+    currency: productionCostCurrency === "custom" ? customCurrency : productionCostCurrency,
+    sellPricePerMWh: sellPricePerMWh,
+    productionCost: productionCost,
+    productionCostCurrency: productionCostCurrency,
+    customCurrency: customCurrency,
+    
+    // Calculator values from stored state
+    p1Value: calculatorValues.p1Value,
+    p2Value: calculatorValues.p2Value,
+    t1Value: calculatorValues.t1Value,
+    t2pValue: calculatorValues.t2pValue,
+    tcrhValue: calculatorValues.tcrhValue,
+    tmixValue: calculatorValues.tmixValue,
+    wcrhValue: calculatorValues.wcrhValue,
+    d2Value: calculatorValues.d2Value,
+    twValue: calculatorValues.twValue,
+    wwValue: calculatorValues.wwValue,
+    
+    // Units
+    p1Unit: p1Unit,
+    t1Unit: t1Unit,
+    wcrhUnit: wcrhUnit,
+  }),
+},
+              });
             }
-          ]
-        );
-        return;
-      }
+          }
+        ]
+      );
       return;
     }
+    return;
+  }
 
-    router.push({
-      pathname: "/CalculatorScreen",
-      params: {
-        powerStationData: JSON.stringify({
-          stationName: powerStationName,
-          pipeDiaD2: pipeDiaD2,
-          pipeDiaUnit: pipeDiaUnit,
-          plantType: plantType,
-          criticalType: criticalType,
-          plantMCR: plantMCR,
-          heatRateValue: heatRateValue,
-          heatRateUnit: heatRateUnit,
-          currency:
-            productionCostCurrency === "custom"
-              ? customCurrency
-              : productionCostCurrency,
-          sellPricePerMWh: sellPricePerMWh,
-          productionCost: productionCost,
-          productionCostCurrency: productionCostCurrency,
-          customCurrency: customCurrency,
-          p1Unit,
-          t1Unit,
-          wcrhUnit,
-        }),
-      },
-    });
-  };
+  router.push({
+    pathname: "/CalculatorScreen",
+    params: {
+      powerStationData: JSON.stringify({
+        // Basic plant data
+        stationName: powerStationName,
+        pipeDiaD2: pipeDiaD2,
+        pipeDiaUnit: pipeDiaUnit,
+        plantType: plantType,
+        criticalType: criticalType,
+        plantMCR: plantMCR,
+        heatRateValue: heatRateValue,
+        heatRateUnit: heatRateUnit,
+        currency: productionCostCurrency === "custom" ? customCurrency : productionCostCurrency,
+        sellPricePerMWh: sellPricePerMWh,
+        productionCost: productionCost,
+        productionCostCurrency: productionCostCurrency,
+        customCurrency: customCurrency,
+        
+        // Calculator values from returned data (if any)
+        p1Value: returnedData.p1Value || '',
+        p2Value: returnedData.p2Value || '',
+        t1Value: returnedData.t1Value || '',
+        t2pValue: returnedData.t2pValue || '',
+        tcrhValue: returnedData.tcrhValue || '',
+        tmixValue: returnedData.tmixValue || '',
+        wcrhValue: returnedData.wcrhValue || '',
+        d2Value: returnedData.d2Value || '',
+        twValue: returnedData.twValue || '',
+        wwValue: returnedData.wwValue || '',
+        
+        // Units
+        p1Unit: p1Unit,
+        t1Unit: t1Unit,
+        wcrhUnit: wcrhUnit,
+      }),
+    },
+  });
+};
 
   const handleContentLayout = (event: any) => {
     const { height } = event.nativeEvent.layout;
