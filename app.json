@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "sandy_b",
-    "slug": "kosoapplication123",
+    "name": "companytest",
+    "slug": "vidharbh-loan-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "leakage",
@@ -51,9 +51,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "303b944c-4510-4888-85b5-e552423675e5"
+        "projectId": "3cb3b399-036d-4491-be84-9ca23931bb7b"
       }
     },
-    "owner": "sandy_b"
+    "owner": "companytest"
   }
 }

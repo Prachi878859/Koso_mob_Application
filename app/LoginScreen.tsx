@@ -457,6 +457,7 @@ export default function LoginScreen() {
                 {/* Form Section - Completely transparent with no shadow */}
                 <View style={[
                   styles.formSection,
+                  
                   { 
                     padding: getFormPadding(),
                     marginBottom: isSmallScreen ? 16 : 20
