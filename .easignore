@@ -1,0 +1,16 @@
+node_modules/
+.expo/
+.git/
+*.log
+.DS_Store
+android/
+ios/
+.env
+.gitignore
+.expo-shared/
+*.md
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+*.tsbuildinfo

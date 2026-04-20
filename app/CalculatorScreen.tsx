@@ -747,1344 +747,7 @@
 
 
 
-
-// import React, { useRef, useState, useEffect } from "react";
-// import {
-//   Image,
-//   KeyboardAvoidingView,
-//   Platform,
-//   ScrollView,
-//   StyleSheet,
-//   Text,
-//   TextInput,
-//   TouchableOpacity,
-//   View,
-//   LayoutChangeEvent,
-//   NativeSyntheticEvent,
-//   TextInputChangeEventData,
-// } from "react-native";
-// import DropDownPicker from "react-native-dropdown-picker";
-// import Reanimated, { FadeIn } from "react-native-reanimated";
-// import { useLocalSearchParams, useRouter } from "expo-router";
-// import api from "./axiosInstance";
-
-
-// // ⚠️ REPLACE THIS WITH YOUR ACTUAL IMAGE IMPORT
-// const LeakDiagramImage = require('../assets/images/image.png');
-// // const LeakDiagramImage = { uri: "https://i.imgur.com/your_leak_diagram_image.png" };
-// // Using a placeholder URI or a local require is necessary for a real app.
-
-// interface FieldPositions {
-//   [key: string]: number;
-// }
-
-// interface InputErrors {
-//   [key: string]: string | undefined;
-// }
-
-// interface WarningByField {
-//   P1?: string;
-//   P2?: string;
-//   T1?: string;
-//   T2p?: string;
-//   TCRH?: string;
-//   Tmix?: string;
-//   WCRH?: string;
-//   D2?: string;
-//   Tw?: string;
-//   Ww?: string;
-// }
-
-// const validateInputs = (
-//   p1: number,
-//   p2: number,
-//   t1: number,
-//   t2p: number,
-//   t2: number,
-//   tmix: number,
-//   wcrh: number,
-//   d2: number,
-//   wcrUnit: string,
-//   tw: number,
-//   ww: number
-// ): { warningsByField: WarningByField; leakRateOutput: string | null; anyWarning: boolean } => {
-//   const warningsByField: WarningByField = {
-//     P1: undefined,
-//     P2: undefined,
-//     T1: undefined,
-//     T2p: undefined,
-//     TCRH: undefined,
-//     Tmix: undefined,
-//     WCRH: undefined,
-//     D2: undefined,
-//     Tw: undefined,
-//     Ww: undefined,
-//   };
-
-//   let leakRateOutput: string | null = null;
-
-//   // Add check for unrealistic temperatures (below absolute zero or too high)
-//   if (t1 < -273 || t1 > 1000) warningsByField.T1 = "T1 temperature out of realistic range";
-//   if (t2p < -273 || t2p > 1000) warningsByField.T2p = "T2p temperature out of realistic range";
-//   if (t2 < -273 || t2 > 1000) warningsByField.TCRH = "TCRH temperature out of realistic range";
-//   if (tmix < -273 || tmix > 1000) warningsByField.Tmix = "Tmix temperature out of realistic range";
-
-//   // P1 bounds (barA)
-//   if (p1 < 80) warningsByField.P1 = "P1 out of bounds (LOW) - (80-280)";
-//   if (p1 > 280) warningsByField.P1 = "P1 out of bounds (HIGH) - (80-280)";
-
-//   // P2 bounds (barA)
-//   if (p2 < 20) warningsByField.P2 = "P-CRH out of bounds (LOW) - (20-60)";
-//   if (p2 > 60) warningsByField.P2 = "P-CRH out of bounds (HIGH) - (20-60)";
-
-//   // P1/P2 ratio
-//   if (p2 !== 0) {
-//     if (p1 / p2 < 2) warningsByField.P2 = "(P1/P2-CRH) ratio out of bounds (LOW) - (2-6)";
-//     if (p1 / p2 > 6) warningsByField.P2 = "(P1/P2-CRH) ratio out of bounds (HIGH) - (2-6)";
-//   } else {
-//     warningsByField.P2 = "P2 cannot be zero for ratio check";
-//   }
-
-//   // T1 bounds (°C)
-//   if (t1 < 500) warningsByField.T1 = "T1 out of bounds (LOW) - (500-600)";
-//   if (t1 > 600) warningsByField.T1 = "T1 out of bounds (HIGH) - (500-600)";
-  
-//   // T2 bounds (°C)
-//   if (t2 < 300) warningsByField.TCRH = "TCRH out of bounds (LOW) - (300-425)";
-//   if (t2 > 425) warningsByField.TCRH = "TCRH out of bounds (HIGH) - (300-425)";
-
-//   // T2p bounds (°C)
-//   if (t2p < 300) warningsByField.T2p = "T2p out of bounds (LOW) - (300-425)";
-//   if (t2p > 425) warningsByField.T2p = "T2p out of bounds (HIGH) - (300-425)";
-
-//   // Tmix bounds (°C)
-//   if (tmix < 300) warningsByField.Tmix = "T_M out of bounds (LOW) - (300-450)";
-//   if (tmix > 450) warningsByField.Tmix = "T_M out of bounds (HIGH) - (300-450)";
-
-//   // T2p vs TCRH comparison (for correction factor denominator)
-//   if (Math.abs(t2p - t2) < 4) {
-//     warningsByField.TCRH = "T2p and TCRH are too close - correction factor may be inaccurate";
-//     warningsByField.T2p = "T2p and TCRH are too close - correction factor may be inaccurate";
-//   }
-
-//   // Tmix vs TCRH checks
-//   if (t2 - tmix > 4) {
-//     warningsByField.Tmix = "T_M temperature error (less than T-CRH)";
-//   }
-//   if (Math.abs(t2 - tmix) < 4) {
-//     warningsByField.TCRH = "Possible inaccuracy in TCRH and/or T_M";
-//     warningsByField.Tmix = "Possible inaccuracy in TCRH and/or T_M";
-//   }
-
-//   // W bounds (T/HR)
-//   if (wcrh < 100) warningsByField.WCRH = "W out of bounds (LOW) - (100-4000)";
-//   if (wcrh > 4000) warningsByField.WCRH = "W out of bounds (HIGH) - (100-4000)";
-
-//   // D2 bounds (mm)
-//   if (d2 < 100) warningsByField.D2 = "D2 out of bounds (LOW) - (100-1000)";
-//   if (d2 > 1000) warningsByField.D2 = "D2 out of bounds (HIGH) - (100-1000)";
-
-//   const anyWarning = Object.values(warningsByField).some(Boolean);
-//   return { warningsByField, leakRateOutput, anyWarning };
-// };
-
-// export default function CalculatorScreen() {
-//   const router = useRouter();
-
-//   const params = useLocalSearchParams();
-
-//   const parsedPowerStationData =
-//     params.powerStationData
-//       ? JSON.parse(params.powerStationData as string)
-//       : {};
-
-//   const {
-//     stationName,
-//     pipeDiaD2,
-//     p1Unit: paramP1Unit,
-//     t1Unit: paramT1Unit,
-//     wcrhUnit,
-//     heatRateValue,
-//     plantMCR,
-//     plantType,
-//     criticalType,
-//     currency: paramCurrency,
-    
-//   } = parsedPowerStationData;
-
-//   const [P1, setP1] = useState("");
-//   const [P2, setP2] = useState("");
-//   const [T1, setT1] = useState("");
-//   const [T2p, setT2p] = useState("");
-//   const [TCRH, setTCRH] = useState("");
-
-//   const [Tmix, setTmix] = useState("");
-//   const [WCRH, setWCRH] = useState("");
-//   const [D2, setD2] = useState("");
-
-//   const [showOutput, setShowOutput] = useState(false);
-//   const [open, setOpen] = useState(false);
-//   const [wcrUnit, setWcrUnit] = useState<
-//     "T/HR" | "KG/S" | "KPPH/HR" | "LB/S"
-//   >("T/HR");
-//   // Default unit
-//   const [items, setItems] = useState([
-//     { label: "T/HR", value: "T/HR" },
-//     { label: "KG/S", value: "KG/S" },
-
-//     { label: "KPPH/HR", value: "KPPH/HR" },
-//     { label: "LB/S", value: "LB/S" },
-//   ]);
-
-//   const [result, setResult] = useState("0.00");
-//   const [message, setMessage] = useState("");
-//   const [hasWarning, setHasWarning] = useState(false);
-
-//   const [openP1, setOpenP1] = useState(false);
-//   const [p1Unit, setP1Unit] = useState<"bara" | "psia">("bara");
-//   const [p1Items, setP1Items] = useState([
-//     { label: "barA", value: "bara" },
-//     { label: "psiA", value: "psia" },
-//   ]);
-
-//   const [openT1, setOpenT1] = useState(false);
-
-//   const [t1Unit, setT1Unit] = useState<"C" | "F">("C");
-
-//   const [t1Items, setT1Items] = useState([
-//     { label: "°C", value: "C" },
-//     { label: "°F", value: "F" },
-//   ]);
-//   const [tw, setTw] = useState('');
-//   const [ww, setWw] = useState('');
-//   const [currency, setCurrency] = useState("INR");
-//   const [heatRateUnit, setHeatRateUnit] = useState("kJ/kW-h");
-//   const [productionCost, setProductionCost] = useState("");
-//   const [sellPricePerMWh, setSellPricePerMWh] = useState("");
-//   const [pipeDiaUnit, setPipeDiaUnit] = useState("MM"); 
-//   const [calculatedResults, setCalculatedResults] = useState({
-//   leakRate: "0.00",
-//   mwLoss: "0.00",
-//   hrPenalty: "0.00",
-//   productionLoss: "0.00",
-//   revenueLoss: "0.00",
-//   productionCostWasted: "0.00",
-//   hasWarning: false,
-//   warningMessage: ""
-// });
-//   const [inputErrors, setInputErrors] = useState<InputErrors>({});
-
-//   useEffect(() => {
-//     if (pipeDiaD2) {
-//       setD2(pipeDiaD2);
-//     }
-
-//     if (paramP1Unit === "barA") setP1Unit("bara");
-//     if (paramP1Unit === "psiA") setP1Unit("psia");
-
-//     if (paramT1Unit === "deg C") setT1Unit("C");
-//     if (paramT1Unit === "deg F") setT1Unit("F");
-
-//     if (wcrhUnit) {
-//       setWcrUnit(wcrhUnit);
-//     }
-
-//     if (paramCurrency) {
-//       setCurrency(paramCurrency);
-//     }
-//     if (pipeDiaUnit) { // 👈 Add this
-//     setPipeDiaUnit(pipeDiaUnit);
-//   }
-//   }, []);
-
-//   // Constants for calculation
-
-//   const CONST_54 = 54;
-//   const CONST_8275 = 827.5;
-//   const CONST_2733 = 273.3;
-//   const CONST_1690 = 1690;
-//   const CONST_6332 = 633.2;
-//   const CONST_500 = 500;
-//   const CONST_K = wcrUnit === "T/HR" ? 0.145 : 145;
-
-
-//   const scrollRef = useRef<ScrollView>(null);
-
-//   const scrollToTop = () => {
-//     requestAnimationFrame(() => {
-//       scrollRef.current?.scrollTo({ y: 0, animated: true });
-//     });
-//   };
-
-//   const fieldPositions = useRef<FieldPositions>({}).current;
-
-//   const rememberY = (key: string) => (e: LayoutChangeEvent) => {
-//     fieldPositions[key] = e.nativeEvent.layout.y;
-//   };
-
-// const convertUnits = () => {
-//   // Make copies of current values for conversion
-//   let p1 = Number.parseFloat(P1) || 0;
-//   let p2 = Number.parseFloat(P2) || 0;
-//   let t1 = Number.parseFloat(T1) || 0;
-//   let t2p = Number.parseFloat(T2p) || 0;
-//   let t2 = Number.parseFloat(TCRH) || 0;
-//   let tmix = Number.parseFloat(Tmix) || 0;
-//   let wcrh = Number.parseFloat(WCRH) || 0;
-//   let d2 = Number.parseFloat(D2) || 0;
-
-//   console.log("=== BEFORE CONVERSION ===");
-//   console.log("Original T1:", t1, t1Unit);
-//   console.log("Original T2p:", t2p, t1Unit);
-//   console.log("Original TCRH:", t2, t1Unit);
-//   console.log("Original Tmix:", tmix, t1Unit);
-
-//   // P1/P2 conversion (psiA to barA)
-//   if (p1Unit === "psia") {
-//     const ConvP = 1/14.5; // ~0.0689655
-//     p1 = p1 * ConvP;
-//     p2 = p2 * ConvP;
-//     console.log("Converted P1 to barA:", p1);
-//     console.log("Converted P2 to barA:", p2);
-//   }
-
-//   // Temperature conversion (°F to °C)
-//   if (t1Unit === "F") {
-//     t1 = (t1 - 32) / 1.8;
-//     t2p = (t2p - 32) / 1.8;
-//     t2 = (t2 - 32) / 1.8;
-//     tmix = (tmix - 32) / 1.8;
-    
-//     console.log("=== AFTER TEMP CONVERSION ===");
-//     console.log("Converted T1 (°C):", t1);
-//     console.log("Converted T2p (°C):", t2p);
-//     console.log("Converted TCRH (°C):", t2);
-//     console.log("Converted Tmix (°C):", tmix);
-//   }
-
-//   // W-CRH conversion to T/HR
-//   if (wcrUnit === "KG/S") {
-//     const ConvW = 3.6;
-//     wcrh = wcrh * ConvW;
-//   } else if (wcrUnit === "KPPH/HR") {
-//     const ConvW = 1/2.24; // ~0.446429
-//     wcrh = wcrh * ConvW;
-//   } else if (wcrUnit === "LB/S") {
-//     const ConvW = 3600/2240; // ~1.60714
-//     wcrh = wcrh * ConvW;
-//   }
-
-//   // D2 conversion (IN to MM)
-//   if (pipeDiaUnit === "IN") {
-//     d2 = d2 * 25.4;
-//   }
-
-//   // Heat Rate conversion (Btu/kW-h to kJ/kW-h)
-//   let hrValue = Number.parseFloat(heatRateValue || "0");
-//   if (heatRateUnit === "Btu/kW-h") {
-//     const ConvHR = 1.055;
-//     hrValue = hrValue * ConvHR;
-//   } else if (heatRateUnit === "default") {
-//     // Set default values based on plant type
-//     if (plantType === "ccpp") {
-//       hrValue = 7500;
-//     } else if (criticalType === "supercritical") {
-//       hrValue = 8400;
-//     } else {
-//       hrValue = 9500; // subcritical or default
-//     }
-//   }
-
-//   return {
-//     p1, p2, t1, t2p, t2, tmix, wcrh, d2, hrValue
-//   };
-// };
-
-
-//   // Real-time validation function
-//   const validateFieldInRealTime = (fieldName: string, value: string) => {
-//     if (!value.trim()) {
-//       // Clear error if field is empty
-//       setInputErrors(prev => ({ ...prev, [fieldName]: undefined }));
-//       return;
-//     }
-
-//     const numValue = parseFloat(value);
-//     if (isNaN(numValue)) {
-//       setInputErrors(prev => ({ ...prev, [fieldName]: "Must be a number" }));
-//       return;
-//     }
-
-
-
-//     let error: string | undefined = undefined;
-
-//     switch (fieldName) {
-//       case 'P1':
-//         if (numValue < 80) error = "P1 out of bounds (LOW) - (80-280)";
-//         if (numValue > 280) error = "P1 out of bounds (HIGH) - (80-280)";
-//         break;
-//       case 'P2':
-//         if (numValue < 20) error = "P-CRH out of bounds (LOW) - (20-60)";
-//         if (numValue > 60) error = "P-CRH out of bounds (HIGH) - (20-60)";
-//         break;
-//       case 'T1':
-//         if (numValue < 500) error = "T1 out of bounds (LOW) - (500-600)";
-//         if (numValue > 600) error = "T1 out of bounds (HIGH) - (500-600)";
-//         break;
-
-//       case 'T2p':
-//         if (numValue < 300)
-//           error = "T2p out of bounds (LOW) - (300-425)";
-//         if (numValue > 425)
-//           error = "T2p out of bounds (HIGH) - (300-425)";
-//         break;
-
-
-
-//       case 'TCRH':
-
-//         if (numValue < 300) error = "TCRH out of bounds (LOW) - (300-425)";
-//         if (numValue > 425) error = "TCRH out of bounds (HIGH) - (300-425)";
-//         break;
-//       case 'Tmix':
-//         if (numValue < 300) error = "T_M out of bounds (LOW) - (300-450)";
-//         if (numValue > 450) error = "T_M out of bounds (HIGH) - (300-450)";
-//         break;
-//       case 'WCRH':
-//         if (numValue < 100) error = "W out of bounds (LOW) - (100-4000)";
-//         if (numValue > 4000) error = "W out of bounds (HIGH) - (100-4000)";
-//         break;
-
-//     }
-
-//     setInputErrors(prev => ({ ...prev, [fieldName]: error }));
-//   };
-
-//   // Format result based on unit
-//   const formatResult = (
-//     resultValue: string,
-//     unit: "T/HR" | "KG/S" | "KPPH/HR" | "LB/S"
-//   ): string => {
-//     if (resultValue === "NA" || resultValue === "0.00") return resultValue;
-
-//     const numericValue = parseFloat(resultValue);
-
-//     if (unit !== "T/HR") {
-//       return Math.floor(numericValue).toString();
-//     }
-//     else {
-//       // For T/HR, show with two decimal digits
-//       return numericValue.toFixed(2);
-//     }
-//   };
-
-// const calculateLeakFlow = () => {
-//   let finalProductionCost = productionCost;
-//   let finalCurrency = currency;
-
-//   // DEFAULT LOGIC (as per document)
-//   if (!finalProductionCost || finalProductionCost.trim() === "") {
-//     finalProductionCost = "50";
-//     finalCurrency = "USD";
-//   }
-
-//   // Validate empty fields first
-//   const empties: InputErrors = {
-//     P1: !P1.trim() ? "Required" : undefined,
-//     P2: !P2.trim() ? "Required" : undefined,
-//     T1: !T1.trim() ? "Required" : undefined,
-//     T2p: !T2p.trim() ? "Required" : undefined,
-//     TCRH: !TCRH.trim() ? "Required" : undefined,
-//     Tmix: !Tmix.trim() ? "Required" : undefined,
-//     WCRH: !WCRH.trim() ? "Required" : undefined,
-//     Tw: !tw.trim() ? "Required" : undefined,
-//     Ww: !ww.trim() ? "Required" : undefined,
-//   };
-
-//   const hasEmpty = Object.values(empties).some(Boolean);
-//   if (hasEmpty) {
-//     setInputErrors(empties);
-//     setHasWarning(true);
-//     setShowOutput(false);
-//     setCalculatedResults(prev => ({
-//       ...prev,
-//       hasWarning: true,
-//       warningMessage: "Please fill all required fields"
-//     }));
-//     const firstKey = Object.keys(empties).find((k) => empties[k]);
-//     if (firstKey && fieldPositions[firstKey] !== undefined) {
-//       requestAnimationFrame(() =>
-//         scrollRef.current?.scrollTo({ y: Math.max(fieldPositions[firstKey] - 24, 0), animated: true }),
-//       );
-//     }
-//     return;
-//   }
-
-//   // Store original unit values for later conversion back
-//   const originalWcrUnit = wcrUnit;
-//   const originalHeatRateUnit = heatRateUnit;
-//   const originalP1Unit = p1Unit;
-//   const originalT1Unit = t1Unit;
-//   const originalPipeDiaUnit = pipeDiaUnit;
-
-//   // Apply unit conversions to standard units for calculation
-//   const converted = convertUnits();
-  
-//   let p1 = converted.p1;
-//   let p2 = converted.p2;
-//   let t1 = converted.t1;
-//   let t2p = converted.t2p;
-//   let t2 = converted.t2;
-//   let tmix = converted.tmix;
-//   let wcrh = converted.wcrh;
-//   let d2 = converted.d2;
-//   let heatRateNum = converted.hrValue;
-
-//   console.log("=== CONVERTED VALUES ===");
-//   console.log("P1 (barA):", p1);
-//   console.log("P2 (barA):", p2);
-//   console.log("T1 (°C):", t1);
-//   console.log("T2p (°C):", t2p);
-//   console.log("TCRH (°C):", t2);
-//   console.log("Tmix (°C):", tmix);
-//   console.log("WCRH (T/HR):", wcrh);
-//   console.log("D2 (mm):", d2);
-
-//   // Check if temperatures are in realistic range after conversion
-//   if (t1 < 0 || t1 > 1000 || t2p < 0 || t2p > 1000 || t2 < 0 || t2 > 1000 || tmix < 0 || tmix > 1000) {
-//     console.error("Temperature out of realistic range after conversion");
-//     setInputErrors(prev => ({
-//       ...prev,
-//       T1: t1 < 0 || t1 > 1000 ? "Temperature unrealistic. Check units." : prev.T1,
-//       T2p: t2p < 0 || t2p > 1000 ? "Temperature unrealistic. Check units." : prev.T2p,
-//       TCRH: t2 < 0 || t2 > 1000 ? "Temperature unrealistic. Check units." : prev.TCRH,
-//       Tmix: tmix < 0 || tmix > 1000 ? "Temperature unrealistic. Check units." : prev.Tmix,
-//     }));
-//     setHasWarning(true);
-//     setShowOutput(true);
-//     setCalculatedResults(prev => ({
-//       ...prev,
-//       hasWarning: true,
-//       warningMessage: "Temperature values unrealistic. Please check your inputs and units."
-//     }));
-//     return;
-//   }
-
-//   const twValue = Number(tw) || 0;
-//   const wwValue = Number(ww) || 0;
-
-//   // Check for cross-field validations
-//   const { warningsByField, leakRateOutput, anyWarning } = validateInputs(
-//     p1, p2, t1, t2p, t2, tmix, wcrh, d2, wcrUnit, twValue, wwValue
-//   );
-
-//   if (anyWarning) {
-//     setInputErrors({ ...inputErrors, ...warningsByField });
-//     setHasWarning(true);
-//     setShowOutput(true);
-//     setCalculatedResults(prev => ({
-//       ...prev,
-//       hasWarning: true,
-//       warningMessage: Object.values(warningsByField).find(Boolean) || "Input validation warning"
-//     }));
-//     const firstWarnKey = Object.keys(warningsByField).find((k) => warningsByField[k as keyof WarningByField]);
-//     if (firstWarnKey && fieldPositions[firstWarnKey] !== undefined) {
-//       requestAnimationFrame(() =>
-//         scrollRef.current?.scrollTo({ y: Math.max(fieldPositions[firstWarnKey] - 24, 0), animated: true }),
-//       );
-//     }
-//     return;
-//   }
-
-//   // STEP 2a: Calculate T2is (Isentropic Temperature)
-//   const T2is = t1 - ((p1 - p2) / 20) * (25.1 - 0.03 * t1);
-  
-//   // STEP 2a: Calculate K1 (Updated formula)
-//   const K1 = 15.32 * (p2 / (T2is + 273.2));
-  
-//   // STEP 2a: Calculate K2 (Updated formula)
-//   const K2 = (3 * Math.pow(10, -8)) * (Math.pow(wcrh, 2) / p2) * (t2 + 273.2);
-  
-//   // STEP 2a: Calculate K3 (Unchanged)
-//   const K3 = Math.pow(d2 / 500, 2);
-  
-//   // STEP 2a: Calculate Uncorrected Leak Rate, Wraw
-//   const CONST_K = originalWcrUnit === "T/HR" ? 0.145 : 145;
-//   const Wraw = CONST_K * (tmix - t2) * K1 * K2 * K3;
-  
-//   // STEP 2b: Calculate Corrected Leak Rate, Wcorr
-//   let Wcorr = Wraw;
-//   if (Math.abs(t2p - t2) > 0.001) {
-//     Wcorr = Wraw * ((T2is - t2) / (t2p - t2));
-//   }
-  
-//   // Apply spray water correction factor
-//   const correctionFactor = wwValue !== 0 && twValue !== 0 ? wwValue / twValue : 1;
-//   let finalCorrectedLeakRate = Wcorr * correctionFactor;
-
-//   // STEP 3: Calculate MW loss
-//   // CpstH (High pressure range specific heat)
-//   const CpstH = 3.521 + 0.00467 * p1 - 0.00274 * t1;
-  
-//   // CpstL (Low pressure range specific heat)
-//   const CpstL = 2.784 + 0.01164 * p2 - 0.002 * t2;
-  
-//   // Eq. MW-loss formula: MWLOSS = 0.9 * (Wcorr/3.6) * [(CpstH*T1) – (CpstL*TCRH)]
-//   const mwLoss = 0.9 * (finalCorrectedLeakRate / 3.6) * ((CpstH * t1) - (CpstL * t2));
-  
-//   // Heat Rate Penalty: D-HR = HR * (Eq. MW-loss / MCR)
-//   const mcrNum = parseFloat(plantMCR || "0");
-//   let hrPenalty = mcrNum > 0 ? heatRateNum * (mwLoss / mcrNum) : 0;
-  
-//   // Production loss (MW-h) per year: PLOSS = Eq. MW-loss * 8000
-//   const productionLossPerYear = mwLoss * 8000;
-  
-//   // Revenue loss per year: RLOSS = SPMWh * PLOSS
-//   const sellPriceNum = parseFloat(sellPricePerMWh || "0");
-//   const revenueLossPerYear = sellPriceNum * productionLossPerYear;
-  
-//   // Production Cost Wasted per year: PCOST = PCOSTU * (HR * 1000) * PLOSS
-//   const productionCostNum = parseFloat(finalProductionCost);
-//   const productionCostWastedPerYear = productionCostNum * (heatRateNum * 1000) * productionLossPerYear;
-
-//   console.log("=== INTERMEDIATE CALCULATIONS ===");
-//   console.log("T2is =", T2is);
-//   console.log("K1 =", K1);
-//   console.log("K2 =", K2);
-//   console.log("K3 =", K3);
-//   console.log("Wraw =", Wraw);
-//   console.log("Wcorr =", Wcorr);
-//   console.log("Correction Factor =", correctionFactor);
-
-//   /* ========== STEP 4: CONVERT BACK TO USER UNITS ========== */
-  
-//   // Store values before conversion for display
-//   let displayLeakRate = finalCorrectedLeakRate;
-//   let displayHrPenalty = hrPenalty;
-  
-//   // 4a: Convert Wcorr back to original W-CRH unit
-//   if (originalWcrUnit === "KG/S") {
-//     const ConvW = 3.6;
-//     displayLeakRate = finalCorrectedLeakRate / ConvW;
-//   } else if (originalWcrUnit === "KPPH/HR") {
-//     const ConvW = 1/2.24; // ~0.446429
-//     displayLeakRate = finalCorrectedLeakRate / ConvW;
-//   } else if (originalWcrUnit === "LB/S") {
-//     const ConvW = 3600/2240; // ~1.60714
-//     displayLeakRate = finalCorrectedLeakRate / ConvW;
-//   }
-//   // If T/HR, no conversion needed (already in T/HR)
-
-//   // 4b: Convert Heat Rate Penalty back to original Heat Rate unit
-//   if (originalHeatRateUnit === "Btu/kW-h") {
-//     const ConvHR = 1.055;
-//     displayHrPenalty = hrPenalty / ConvHR;
-//   }
-//   // If kJ/kW-h or default, no conversion needed (already in kJ/kW-h)
-
-//   // Format the leak rate result for display
-//   let formattedLeakRate: string;
-//   if (originalWcrUnit !== "T/HR") {
-//     formattedLeakRate = Math.floor(Math.abs(displayLeakRate)).toString();
-//   } else {
-//     formattedLeakRate = Math.abs(displayLeakRate).toFixed(2);
-//   }
-
-//   // Format other values (use absolute values to avoid negative display)
-//   const formattedMwLoss = Math.abs(mwLoss).toFixed(2);
-//   const formattedHrPenalty = Math.abs(displayHrPenalty).toFixed(2);
-//   const formattedProductionLoss = Math.abs(productionLossPerYear).toFixed(2);
-//   const formattedRevenueLoss = Math.abs(revenueLossPerYear).toFixed(2);
-//   const formattedProductionCostWasted = Math.abs(productionCostWastedPerYear).toFixed(2);
-
-//   console.log("=== FINAL RESULTS ===");
-//   console.log("Leak Rate:", displayLeakRate, originalWcrUnit);
-//   console.log("MW Loss:", mwLoss, "MW");
-//   console.log("Heat Rate Penalty:", displayHrPenalty, originalHeatRateUnit || "kJ/kW-h");
-//   console.log("Production Loss per Year:", productionLossPerYear, "MW-h");
-//   console.log("Revenue Loss per Year:", revenueLossPerYear, finalCurrency);
-//   console.log("Production Cost Wasted per Year:", productionCostWastedPerYear, finalCurrency);
-
-//   // Set all results
-//   setCalculatedResults({
-//     leakRate: formattedLeakRate,
-//     mwLoss: formattedMwLoss,
-//     hrPenalty: formattedHrPenalty,
-//     productionLoss: formattedProductionLoss,
-//     revenueLoss: formattedRevenueLoss,
-//     productionCostWasted: formattedProductionCostWasted,
-//     hasWarning: false,
-//     warningMessage: ""
-//   });
-
-//   setResult(formattedLeakRate);
-//   setMessage("");
-//   setHasWarning(false);
-//   setShowOutput(true);
-//   setInputErrors({});
-//   scrollToTop();
-
-//   return formattedLeakRate;
-// };
-
-
-//   const calculateAndSave = async () => {
-
-//     // 1️⃣ First calculate
-//     calculateLeakFlow(); 
-    
-//     try {
-
-//       const finalPayload = {
-//         power_station_name: stationName,
-
-//         pipe_dia_d2: pipeDiaD2,
-//         pipe_dia_unit: pipeDiaUnit,
-
-//         t2p: T2p,
-
-//         p1: P1,
-//         p1_unit: p1Unit,
-
-//         t1: T1,
-//         t1_unit: t1Unit,
-
-//         p2: P2,
-//         tcrh: TCRH,
-
-//         w_crh: WCRH,
-//         w_crh_unit: wcrhUnit,
-
-//         tw: tw,
-//         ww: ww,
-//         t_mix: Tmix,
-
-//         plant_type: plantType,
-//         critical_type: criticalType,
-
-//         plant_mcr: plantMCR,
-//         heat_rate_value: heatRateValue,
-//         heat_rate_unit: heatRateUnit,
-
-//         production_cost: productionCost,
-//         production_cost_currency: currency,
-//         custom_currency: currency,
-
-//         sell_price_per_mwh: sellPricePerMWh
-//       };
-//       console.log("T1 =", T1);
-//       console.log("Payload =>", finalPayload);
-//       const response = await api.post(
-//         "/power-stations/",
-//         finalPayload
-//       );
-
-//       if (response.data.success) {
-//         // router.replace("/ResultScreen");
-//       }
-
-//     } catch (error: any) {
-//       console.log("BACKEND ERROR =>", error.response?.data);
-//     }
-//   };
-
-//   const resetAll = () => {
-//     setP1("");
-//     setP2("");
-//     setT1("");
-//     setT2p("");
-
-//     setTCRH("");
-
-//     setTmix("");
-//     setWCRH("");
-//     setD2("");
-//     setResult("0.00");
-//     setMessage("");
-//     setHasWarning(false);
-//     setInputErrors({});
-//     setShowOutput(false);
-//     scrollToTop();
-//   };
-
-//   const handleLogout = () => {
-//     router.replace("/LoginScreen");
-//   };
-
-//   return (
-//     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-//       <View style={styles.header}>
-//         <TouchableOpacity
-//           style={styles.logoutButton}
-//           onPress={handleLogout}
-//         >
-//           <Text style={styles.logoutText}>Logout</Text>
-//         </TouchableOpacity>
-
-//         <Text style={styles.logo}>KOSO</Text>
-//         <View style={styles.stationUnitContainer}>
-//           {/* Updated text to match image: "BASHP OORJA UNIT" */}
-//           <Text style={styles.station}>
-//             {stationName || "Power Station"}
-//           </Text>
-
-//           <View style={styles.underline} />
-//           {/* <Text style={styles.unit}>UNIT 4</Text> */}
-//         </View>
-//       </View>
-//       <ScrollView
-//         ref={scrollRef}
-//         nestedScrollEnabled={true}
-//         contentContainerStyle={styles.scrollContent}
-//         keyboardShouldPersistTaps="handled"
-//         showsVerticalScrollIndicator={false}
-//       >
-
-
-
-
-//         <View style={styles.container}>
-//           {/* Replaced StaticGasCylinder with the Image component */}
-//           <View style={styles.diagramImageContainer}>
-//             <Image
-//               source={LeakDiagramImage}
-//               style={styles.diagramImage}
-//               resizeMode="contain"
-//             />
-//           </View>
-
-//           <Text style={styles.sectionTitle}>APPLICATION - HP BYPASS</Text>
-
-//           <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
-
-//             {/* P1 INPUT */}
-//             <View style={{ flex: 1 }}>
-//               <Text style={styles.inputLabel}>P1 (HP Inlet Pressure)</Text>
-//               <TextInput
-//                 style={[styles.input, inputErrors.P1 && styles.inputError]}
-//                 keyboardType="numeric"
-//                 value={P1}
-//                 onChangeText={(t) => {
-//                   setP1(t);
-//                   validateFieldInRealTime("P1", t);
-//                   setShowOutput(false);
-//                 }}
-//                 placeholder="00"
-//                 placeholderTextColor="#FF4D57"
-//               />
-//             </View>
-
-//             {/* P1 UNIT */}
-//             <View style={{ width: 90, marginLeft: 6 }}>
-//               <Text style={styles.inputLabel}>Unit</Text>
-//               <DropDownPicker
-//                 open={openP1}
-//                 value={p1Unit}
-//                 items={p1Items}
-//                 setOpen={setOpenP1}
-//                 setValue={(cb) => setP1Unit(cb(p1Unit))}
-//                 setItems={setP1Items}
-//                 style={styles.unitDropdownBox}
-//                 dropDownContainerStyle={styles.unitDropdownList}
-//                 textStyle={styles.unitDropdownText}
-//               />
-//             </View>
-
-//             {/* T1 INPUT */}
-//             <View style={{ flex: 1, marginLeft: 8 }}>
-//               <Text style={styles.inputLabel}>T1 (HP Steam)</Text>
-//               <TextInput
-//                 style={[styles.input, inputErrors.T1 && styles.inputError]}
-//                 keyboardType="numeric"
-//                 value={T1}
-//                 onChangeText={(t) => {
-//                   setT1(t);
-//                   validateFieldInRealTime("T1", t);
-//                   setShowOutput(false);
-//                 }}
-//                 placeholder="00"
-//                 placeholderTextColor="#FF4D57"
-//               />
-//             </View>
-
-//             {/* T1 UNIT */}
-//             <View style={{ width: 90, marginLeft: 6 }}>
-//               <Text style={styles.inputLabel}>Unit</Text>
-//               <DropDownPicker
-//                 open={openT1}
-//                 value={t1Unit}
-//                 items={t1Items}
-//                 setOpen={setOpenT1}
-//                 setValue={(cb) => setT1Unit(cb(t1Unit))}
-//                 setItems={setT1Items}
-//                 style={styles.unitDropdownBox}
-//                 dropDownContainerStyle={styles.unitDropdownList}
-//                 textStyle={styles.unitDropdownText}
-//               />
-//             </View>
-
-//           </View>
-
-//           <View style={styles.row}>
-//             <View onLayout={rememberY("T2p")} style={styles.inputWrapper}>
-//               <InputField
-//                 label={`T2p (°${t1Unit})`}
-
-//                 value={T2p}
-//                 onChangeText={(t: string) => {
-//                   setT2p(t);
-//                   validateFieldInRealTime("T2p", t);
-//                   setShowOutput(false);
-//                 }}
-//                 errorText={inputErrors.T2p}
-//               />
-//             </View>
-//           </View>
-
-//           <View style={styles.row}>
-//             <View onLayout={rememberY("P2")} style={styles.inputWrapper}>
-//               <InputField
-//                 label="P2 (CRH Outlet Pressure)"
-//                 value={P2}
-//                 onChangeText={(t: string) => {
-//                   setP2(t);
-//                   validateFieldInRealTime("P2", t);
-//                   setShowOutput(false);
-//                 }}
-//                 errorText={inputErrors.P2}
-//               />
-//             </View>
-
-//             <View onLayout={rememberY("TCRH")
-//             } style={styles.inputWrapper}>
-//               <InputField
-//                 label={`TCRH (°${t1Unit})`}
-
-//                 value={TCRH}
-//                 onChangeText={(t: string) => {
-//                   setTCRH(t);
-//                   validateFieldInRealTime("TCRH", t);
-
-//                   setShowOutput(false);
-//                 }}
-//                 errorText={inputErrors.TCRH
-//                 }
-//               />
-//             </View>
-//           </View>
-
-//           <View style={styles.row}>
-//             <View onLayout={rememberY("WCRH")} style={styles.inputWrapper}>
-//               <InputField
-//                 label="W-CRH"
-//                 value={WCRH}
-//                 onChangeText={(t: string) => {
-//                   setWCRH(t);
-//                   validateFieldInRealTime("WCRH", t);
-//                   setShowOutput(false);
-//                 }}
-//                 errorText={inputErrors.WCRH}
-//               />
-//             </View>
-
-//             <View onLayout={rememberY("Unit")} style={{ flex: 1, marginRight: 8, zIndex: 3000 }}>
-//               <Text style={styles.inputLabels}>Unit</Text>
-//               <DropDownPicker<"T/HR" | "KG/S" | "KPPH/HR" | "LB/S">
-
-//                 open={open}
-//                 value={wcrUnit}
-//                 items={items}
-//                 setOpen={setOpen}
-//                 setValue={(callback: (val: "T/HR" | "KG/S" | "KPPH/HR" | "LB/S")
-//                   => "T/HR" | "KG/S" | "KPPH/HR" | "LB/S") => {
-
-//                   const value = callback(wcrUnit);
-
-//                   setWcrUnit(value as "T/HR" | "KG/S" | "KPPH/HR" | "LB/S");
-
-//                   setShowOutput(false);
-//                 }}
-//                 setItems={setItems}
-//                 style={styles.dropdown}
-//                 dropDownContainerStyle={styles.dropdownList}
-//                 textStyle={styles.dropdownText}
-//                 placeholderStyle={styles.dropdownText}
-//                 listMode="SCROLLVIEW"
-//                 zIndex={3000}
-//                 zIndexInverse={1000}
-//               />
-//             </View>
-//           </View>
-
-//           <View style={styles.row}>
-//             <View onLayout={rememberY("Tw")} style={styles.inputWrapper}>
-//               <InputField
-//                 label="Tw (Spray Water Temp)"
-//                 value={tw}
-//                 onChangeText={(t: string) => {
-//                   setTw(t);
-//                   setShowOutput(false);
-//                 }}
-//                 errorText={inputErrors.Tw}
-//               />
-//             </View>
-
-//             <View onLayout={rememberY("Ww")} style={styles.inputWrapper}>
-//               <InputField
-//                 label="Ww (Spray Water Flow)"
-//                 value={ww}
-//                 onChangeText={(t: string) => {
-//                   setWw(t);
-//                   setShowOutput(false);
-//                 }}
-//                 errorText={inputErrors.Ww}
-//               />
-//             </View>
-//           </View>
-//           <View style={styles.row}>
-
-
-//             <View onLayout={rememberY("Tmix")} style={styles.inputWrapper}>
-//               <InputField
-//                 label={`T-MIX (°${t1Unit})`}
-
-//                 value={Tmix}
-//                 onChangeText={(t: string) => {
-//                   setTmix(t);
-//                   validateFieldInRealTime("Tmix", t);
-//                   setShowOutput(false);
-//                 }}
-//                 errorText={inputErrors.Tmix}
-//               />
-//             </View>
-//           </View>
-
-//           {/* Show Output Box only when we have valid result and showOutput is true */}
-//           {showOutput && (
-//             <Reanimated.View entering={FadeIn.duration(500)} style={styles.outputBox}>
-//               <View style={styles.outputInnerBox}>
-//                 <Text style={styles.outputLabel}>LEAK RATE :</Text>
-//                 <Text
-//                   style={[
-//                     styles.outputValueText,
-//                     result === "NA" && { color: "red" }
-//                   ]}
-//                 >
-//                   {result === "NA" ? (
-//                     <>
-//                       NA <Text style={{ fontSize: 12 }}>(Check Inputs)</Text>
-//                     </>
-//                   ) : (
-//                     `${formatResult(result, wcrUnit)} ${wcrUnit}`
-//                   )}
-//                 </Text>
-//               </View>
-
-//               {hasWarning && message ? <Text style={styles.outputWarningText}>Warning : {message}</Text> : null}
-//             </Reanimated.View>
-//           )}
-
-//           {/* Show Calculate Button only when output is not showing */}
-//           {!showOutput && (
-//             <TouchableOpacity style={styles.calculateBtn} onPress={calculateAndSave} accessibilityRole="button">
-//               <Text style={styles.calculateText}>Calculate</Text>
-//             </TouchableOpacity>
-//           )}
-
-//           <TouchableOpacity onPress={resetAll} accessibilityRole="button">
-//             <Text style={styles.resetText}>Reset Value</Text>
-//           </TouchableOpacity>
-//         </View>
-//       </ScrollView>
-//     </KeyboardAvoidingView>
-//   );
-// }
-
-// interface InputFieldProps {
-//   label: string;
-//   value: string;
-//   onChangeText: (text: string) => void;
-//   errorText?: string;
-// }
-
-// function InputField({
-//   label,
-//   value,
-//   onChangeText,
-//   errorText,
-// }: InputFieldProps) {
-//   return (
-//     <View style={styles.inputFieldContainer}>
-//       <Text style={styles.inputLabel}>{label}</Text>
-//       <TextInput
-//         style={[styles.input, errorText ? styles.inputError : null]}
-//         keyboardType="numeric"
-//         value={value}
-//         onChangeText={onChangeText}
-//         placeholder="00"
-//         placeholderTextColor="#FF4D57" // Changed placeholder color to match the image
-//       />
-//       {errorText ? <Text style={styles.fieldErrorText}>{errorText}</Text> : null}
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({
-//   scrollContent: {
-//     flexGrow: 1,
-//   },
-//   container: {
-//     backgroundColor: "#FFFFFF",
-//     padding: 15,
-//     flexGrow: 1,
-//   },
-//   sectionContainer: {
-//     marginTop: 15,
-//     marginBottom: 10,
-//     paddingVertical: 10,
-//     paddingHorizontal: 5,
-//     backgroundColor: '#F9F9F9',
-//     borderRadius: 8,
-//     borderWidth: 1,
-//     borderColor: '#E0E0E0',
-//   },
-//   sectionSubTitle: {
-//     fontSize: 14,
-//     fontWeight: 'bold',
-//     color: '#FF4D57',
-//     marginBottom: 10,
-//     marginLeft: 8,
-//   },
-//   header: {
-//     backgroundColor: "#000000",
-//     paddingVertical: 10,
-//     paddingHorizontal: 18,
-//     justifyContent: "space-between",
-//     width: "100%",
-//   },
-//   logo: {
-//     fontSize: 26,
-//     fontWeight: "bold",
-//     color: "#FF4D57",
-//     alignItems: "flex-start",
-//     marginTop: 10,
-//   },
-//   stationUnitContainer: {
-//     alignItems: "center",
-//   },
-//   station: {
-//     fontSize: 15,
-//     color: "#D3D3D3",
-//     alignItems: "center",
-//     fontWeight: "bold",
-//   },
-//   underline: {
-//     height: 1,
-//     width: "65%",
-//     backgroundColor: "#D3D3D3",
-//     marginVertical: 2,
-//   },
-//   unit: {
-//     fontSize: 13,
-//     color: "#D3D3D3",
-//   },
-//   // --- New styles for Image Diagram ---
-//   diagramImageContainer: {
-//     alignSelf: "center",
-//     width: "100%",
-//     height: 250, // Adjusted height to fit the diagram
-//     marginVertical: 1,
-//     marginTop: 2,
-//     marginBottom: 5,
-//   },
-//   diagramImage: {
-//     width: '105%',
-//     height: '100%',
-//   },
-//   // --- End new styles for Image Diagram ---
-//   outputBox: {
-//     marginTop: 15, // Increased margin to separate from inputs
-//     marginBottom: 10,
-//     alignItems: "center",
-//     backgroundColor: "rgba(255, 77, 87, 0.1)",
-//     borderColor: "#FF4D57",
-//     borderWidth: 1,
-//     paddingVertical: 10,
-//     paddingHorizontal: 10,
-//     borderRadius: 5, // Made it less rounded
-//     width: "95%",
-//     alignSelf: "center",
-//   },
-//   outputInnerBox: {
-//     flexDirection: "row",
-//     alignItems: "center",
-//     justifyContent: "center",
-//   },
-//   outputLabel: {
-//     fontSize: 16,
-//     fontWeight: "bold",
-//     color: "#000000",
-//     marginRight: 5,
-//   },
-//   outputValueText: {
-//     color: "#066e2cff",
-//     fontSize: 18,
-//     fontWeight: "bold",
-//   },
-//   outputWarningText: {
-//     fontSize: 13,
-//     color: "#FF4D57",
-//     marginTop: 5,
-//     textAlign: "center",
-//   },
-//   logoutButton: {
-//     position: "absolute",
-//     top: 10,
-//     right: 5,
-//     padding: 20,
-//     zIndex: 10,
-//   },
-
-//   logoutText: {
-//     color: "#FF4D57",
-//     fontWeight: "bold",
-//     fontSize: 15,
-//   },
-
-//   sectionTitle: {
-//     backgroundColor: "#ECE9E9",
-//     padding: 10,
-//     fontSize: 15,
-//     color: "#FF4D57",
-//     marginVertical: 10,
-//     textAlign: "center",
-//     fontWeight: "bold",
-//   },
-//   row: {
-//     flexDirection: "row",
-//     justifyContent: "space-between",
-//     marginBottom: 10,
-//     overflow: "visible",
-//   },
-//   inputWrapper: {
-//     flex: 1,
-//     marginHorizontal: 2,
-//   },
-//   inputFieldContainer: {
-//     flex: 1,
-//     marginHorizontal: 2,
-//   },
-//   inputLabel: {
-//     color: "#080808",
-//     marginBottom: 2,
-//     fontSize: 11,
-//     marginRight: 8,
-//     marginLeft: 8,
-//   },
-//   inputLabels: { // Used for 'Unit' dropdown label
-//     color: "#080808",
-//     marginBottom: 5,
-//     fontSize: 11,
-//     marginLeft: 15,
-//   },
-//   // --- Input field style changes for bottom line ---
-//   input: {
-//     backgroundColor: "#FFFFFF",
-//     borderRadius: 10,
-//     borderWidth: 1,
-//     borderColor: "#E5E5E5",
-//     paddingHorizontal: 12,
-//     height: 42,
-//     fontSize: 14,
-//     color: "#000",
-//   },
-
-
-
-//   inputError: {
-//     borderColor: "#D60000",
-//     borderBottomWidth: 1.5,
-//     marginRight: 8,
-//     marginLeft: 8,
-//   },
-//   // --- End Input field style changes ---
-//   fieldErrorText: {
-//     color: "#D60000",
-//     marginTop: 3,
-//     fontSize: 11,
-//     marginRight: 8,
-//     marginLeft: 8,
-//   },
-//   dropdown: {
-//     backgroundColor: "transparent", // Transparent background for dropdown
-//     borderRadius: 0,
-//     borderWidth: 0,
-//     borderBottomWidth: 1, // Add bottom border
-//     borderColor: "#FF4D57",
-//     height: 35,
-//     width: '90%',
-//     minHeight: 35,
-//     marginRight: 8,
-//     marginLeft: 8,
-//   },
-//   dropdownList: {
-//     borderRadius: 0,
-//     zIndex: 3000,
-//     borderColor: "#FF4D57",
-//     marginRight: 8,
-//     marginLeft: 8,
-//   },
-//   dropdownText: {
-//     color: "#FF4D57", // Red text for dropdown value
-//     fontSize: 11,
-//     lineHeight: 18,
-//   },
-//   calculateBtn: {
-//     backgroundColor: "#FF4D57",
-//     padding: 12, // Increased padding
-//     borderRadius: 30,
-//     marginTop: 15, // Increased margin
-//     width: "55%",
-//     alignSelf: "center",
-//     alignItems: "center",
-//   },
-//   calculateText: {
-//     color: "#FFFFFF",
-//     fontSize: 16,
-//     fontWeight: "bold",
-//   },
-//   unitDropdownBox: {
-//     borderWidth: 1,
-//     borderColor: "#E5E5E5",
-//     borderRadius: 8,
-//     height: 42,
-//     minHeight: 42,   // ⭐ VERY IMPORTANT
-//     backgroundColor: "#fff",
-//     paddingVertical: 0,   // ⭐ dropdown खाली जाणं थांबवतो
-//     justifyContent: "center", // ⭐ text center ठेवतो
-//   },
-//   unitDropdownList: {
-//     borderRadius: 10,
-//     borderColor: "#E5E5E5",
-//   },
-
-//   unitDropdownText: {
-//     fontSize: 14,
-//     color: "#000",
-//   },
-
-//   resetText: {
-//     color: "#111111",
-//     fontSize: 11,
-//     textAlign: "center",
-//     marginTop: 8,
-//   },
-// });
-
-
-////////////////////////////////////////////////Main FIle ////////////////////////////////////
-
+//////////////////////////////////////////////////////////////////
 
 // import React, { useRef, useState, useEffect } from "react";
 // import {
@@ -2176,6 +839,7 @@
 //   const [tw, setTw] = useState("");
 //   const [ww, setWw] = useState("");
 //   const [showOutput, setShowOutput] = useState(false);
+  
 
 //   // Field-specific warnings state
 //   const [fieldWarnings, setFieldWarnings] = useState<FieldWarnings>({
@@ -2221,6 +885,7 @@
 //   const [pipeDiaUnit, setPipeDiaUnit] = useState("MM");
 //   const [customCurrency, setCustomCurrency] = useState("");
 //   const [plantMCR, setPlantMCR] = useState("");
+  
 
 //   // Warning and result states
 //   const [warnings, setWarnings] = useState<string[]>([]);
@@ -2257,6 +922,42 @@
 //   t1Unit: "C" as "C" | "F",
 //   wcrUnit: "T/HR" as "T/HR" | "KG/S" | "KPPH/HR" | "LB/S"
 // });
+
+// // Helper function to format numbers with commas
+// const formatNumberWithCommas = (value: string | number): string => {
+//   const num = typeof value === 'string' ? parseFloat(value) : value;
+//   if (isNaN(num)) return "0";
+  
+//   // Split into integer and decimal parts
+//   const parts = num.toFixed(2).split('.');
+//   const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+//   const decimalPart = parts[1];
+  
+//   return `${integerPart}.${decimalPart}`;
+// };
+
+// // Helper function to get currency symbol
+// const getCurrencySymbol = (currencyCode: string): string => {
+//   const symbols: { [key: string]: string } = {
+//     'USD': '$',
+//     'EUR': '€',
+//     'GBP': '£',
+//     'JPY': '¥',
+//     'INR': '₹',
+//     'CNY': '¥',
+//     'AUD': 'A$',
+//     'CAD': 'C$',
+//     'CHF': 'CHF',
+//     'custom': '₿' // Default symbol for custom currency
+//   };
+  
+//   // If custom currency, check if customCurrency is provided
+//   if (currencyCode === 'custom') {
+//     return customCurrency || '$';
+//   }
+  
+//   return symbols[currencyCode] || currencyCode;
+// };
 
 // // Update calculator inputs whenever any input changes
 // useEffect(() => {
@@ -2295,8 +996,11 @@
 //   if (paramCustomCurrency) setCustomCurrency(paramCustomCurrency);
   
 //   // Heat rate
-//   if (heatRateValue) {
-//     setHeatRateValue(heatRateValue);
+//    if (parsedPowerStationData.heatRateValue) {
+//     setHeatRateValue(parsedPowerStationData.heatRateValue);
+//   }
+//   if (parsedPowerStationData.heatRateUnit) {
+//     setHeatRateUnit(parsedPowerStationData.heatRateUnit);
 //   }
 
 //   // RESTORE CALCULATOR VALUES - Check if we have saved calculator values
@@ -2536,58 +1240,58 @@
 // }, [P1, P2, T1, T2p, TCRH, Tmix, WCRH, D2, tw, ww, p1Unit, t1Unit, wcrUnit]);
 
 //   // Unit conversion function
-//   const convertUnits = () => {
-//     let p1 = Number.parseFloat(P1) || 0;
-//     let p2 = Number.parseFloat(P2) || 0;
-//     let t1 = Number.parseFloat(T1) || 0;
-//     let t2p = Number.parseFloat(T2p) || 0;
-//     let t2 = Number.parseFloat(TCRH) || 0;
-//     let tmix = Number.parseFloat(Tmix) || 0;
-//     let wcrh = Number.parseFloat(WCRH) || 0;
-//     let d2 = Number.parseFloat(D2) || 0;
+//  const convertUnits = () => {
+//   let p1 = Number.parseFloat(P1) || 0;
+//   let p2 = Number.parseFloat(P2) || 0;
+//   let t1 = Number.parseFloat(T1) || 0;
+//   let t2p = Number.parseFloat(T2p) || 0;
+//   let t2 = Number.parseFloat(TCRH) || 0;
+//   let tmix = Number.parseFloat(Tmix) || 0;
+//   let wcrh = Number.parseFloat(WCRH) || 0;
+//   let d2 = Number.parseFloat(D2) || 0;
 
-//     // P1/P2 conversion (psiA to barA)
-//     if (p1Unit === "psia") {
-//       const ConvP = 1/14.5;
-//       p1 = p1 * ConvP;
-//       p2 = p2 * ConvP;
-//     }
+//   // P1/P2 conversion (psiA to barA)
+//   if (p1Unit === "psia") {
+//     const ConvP = 1/14.5;
+//     p1 = p1 * ConvP;
+//     p2 = p2 * ConvP;
+//   }
 
-//     // Temperature conversion (°F to °C)
-//     if (t1Unit === "F") {
-//       t1 = (t1 - 32) / 1.8;
-//       t2p = (t2p - 32) / 1.8;
-//       t2 = (t2 - 32) / 1.8;
-//       tmix = (tmix - 32) / 1.8;
-//     }
+//   // Temperature conversion (°F to °C)
+//   if (t1Unit === "F") {
+//     t1 = (t1 - 32) / 1.8;
+//     t2p = (t2p - 32) / 1.8;
+//     t2 = (t2 - 32) / 1.8;
+//     tmix = (tmix - 32) / 1.8;
+//   }
 
-//     // W-CRH conversion to T/HR
-//     if (wcrUnit === "KG/S") {
-//       wcrh = wcrh * 3.6;
-//     } else if (wcrUnit === "KPPH/HR") {
-//       wcrh = wcrh * (1/2.24);
-//     } else if (wcrUnit === "LB/S") {
-//       wcrh = wcrh * (3600/2240);
-//     }
+//   // W-CRH conversion to T/HR
+//   if (wcrUnit === "KG/S") {
+//     wcrh = wcrh * 3.6;
+//   } else if (wcrUnit === "KPPH/HR") {
+//     wcrh = wcrh * (1/2.24);
+//   } else if (wcrUnit === "LB/S") {
+//     wcrh = wcrh * (3600/2240);
+//   }
+//   // For T/HR, keep as is
 
-//     // D2 conversion (IN to MM)
-//     if (pipeDiaUnit === "IN") {
-//       d2 = d2 * 25.4;
-//     }
+//   // D2 conversion (IN to MM)
+//   if (pipeDiaUnit === "IN") {
+//     d2 = d2 * 25.4;
+//   }
 
-//     // Heat Rate conversion
-//     let hrValue = Number.parseFloat(heatRateValue || "0");
-//     if (heatRateUnit === "Btu/kW-h") {
-//       hrValue = hrValue * 1.055;
-//     } else if (heatRateUnit === "default") {
-//       if (plantType === "ccpp") hrValue = 7500;
-//       else if (criticalType === "supercritical") hrValue = 8400;
-//       else hrValue = 9500;
-//     }
+//   // Heat Rate conversion
+//   let hrValue = Number.parseFloat(heatRateValue || "0");
+//   if (heatRateUnit === "Btu/kW-h") {
+//     hrValue = hrValue * 1.055;
+//   } else if (heatRateUnit === "default") {
+//     if (plantType === "ccpp") hrValue = 7500;
+//     else if (criticalType === "supercritical") hrValue = 8400;
+//     else hrValue = 9500;
+//   }
 
-//     return { p1, p2, t1, t2p, t2, tmix, wcrh, d2, hrValue };
-//   };
-
+//   return { p1, p2, t1, t2p, t2, tmix, wcrh, d2, hrValue };
+// };
 //   // Check for missing required fields
 //   const checkMissingFields = (): string[] => {
 //     const missing: string[] = [];
@@ -2820,83 +1524,106 @@
 //     performCalculation();
 //   };
 
-//   const performCalculation = () => {
-//     // Convert units for calculation
-//     const converted = convertUnits();
-//     const { p1, p2, t1, t2p, t2, tmix, wcrh, d2, hrValue } = converted;
-    
-//     const twValue = Number(tw) || 0;
-//     const wwValue = Number(ww) || 0;
-//     const mcrValue = Number(plantMCR) || 0;
+// const performCalculation = () => {
+//   // Convert units for calculation
+//   const converted = convertUnits();
+//   const { p1, p2, t1, t2p, t2, tmix, wcrh, d2, hrValue } = converted;
+  
+//   const twValue = Number(tw) || 0;
+//   const wwValue = Number(ww) || 0;
+//   const mcrFlowRate = Number(plantMCR) || 0; // Plant MCR in mt/h
 
-//     // Calculations
-//     const T1is = t1 - ((p1 - p2) / 20) * (25.1 - 0.03 * t1);
-//     const K1 = 15.32 * (p2 / (T1is + 273.2));
-//     const K2 = (3 * Math.pow(10, -8)) * (Math.pow(wcrh, 2) / p2) * (t2 + 273.2);
-//     const K3 = Math.pow(d2 / 500, 2);
-    
-//     // Use the constant formula for Wraw (always 0.145)
+//   // Calculate T2is (Isentropic temperature)
+//   const T2is = t1 - ((p1 - p2) / 20) * (25.1 - 0.03 * t1);
+  
+//   // Calculate K1, K2, K3
+//   const K1 = 15.32 * (p2 / (T2is + 273.2));
+//   const K2 = (3 * Math.pow(10, -8)) * (Math.pow(wcrh, 2) / p2) * (t2 + 273.2);
+//   const K3 = Math.pow(d2 / 500, 2);
+  
+//   // Calculate Wraw
 //   const Wraw = 0.145 * (tmix - t2) * K1 * K2 * K3;
   
-//   // Use the formula for Wcorr (always this calculation)
-//   const Wcorr = Wraw * ((T1is - t2) / (t2p - t2));
-    
-//     const correctionFactor = wwValue !== 0 && twValue !== 0 ? wwValue / twValue : 1;
-//     const finalCorrectedLeakRate = Wcorr * correctionFactor;
-
-//     // Calculate losses
-//     const CpstH = 3.521 + 0.00467 * p1 - 0.00274 * t1;
-    
-//     const CpstL = 2.784 + 0.01164 * p2 - 0.002 * t2;
+//   // Calculate Wcorr (this is in T/HR)
+//   const Wcorr = Wraw * ((T2is - t2) / (t2p - t2));
   
-//     const mwLoss = (0.9 * (Wcorr / 3.6) * ((CpstH * t1) - (CpstL * t2))) / 1000;
-    
-    
-//    let hrPenalty = 0;
-//   if (mcrValue > 0 && mwLoss > 0) {
-//     hrPenalty = hrValue * (mwLoss / mcrValue);
-//   } else if (mcrValue <= 0) {
-//     // Show warning if MCR is missing or zero
-//     setHasWarning(true);
-//     setWarnings(prev => [...prev, "⚠ Plant MCR is missing or invalid. Please enter MCR value."]);
+//   // Apply spray water correction if needed
+//   const correctionFactor = wwValue !== 0 && twValue !== 0 ? wwValue / twValue : 1;
+//   const finalCorrectedLeakRate = Wcorr * correctionFactor;
+
+//   // Calculate CpstH and CpstL
+//   const CpstH = 3.521 + 0.00467 * p1 - 0.00274 * t1;
+//   const CpstL = 2.784 + 0.01164 * p2 - 0.002 * t2;
+  
+//   // Convert Wcorr from T/HR to KG/S for MW calculation
+//   const wcorrInKgPerSec = finalCorrectedLeakRate / 3.6;
+  
+//   // MW LOSS calculation
+//   const mwLoss = 0.9 * wcorrInKgPerSec * ((CpstH * t1) - (CpstL * t2))/1000;
+  
+//   // *** FIXED: Heat Rate Penalty calculation ***
+//   // Formula: D-HR = HR × MW_loss / MCR
+//   // Where MCR is the Plant MCR Flow Rate in mt/h
+//   let hrPenalty = 0;
+//   if (mcrFlowRate > 0 && mwLoss > 0) {
+//     hrPenalty = hrValue * (mwLoss / mcrFlowRate);
 //   }
-    
-//     const productionLossPerYear = mwLoss * 8000;
-//     const sellPriceNum = parseFloat(sellPricePerMWh || "0");
-//     const revenueLossPerYear = sellPriceNum * productionLossPerYear;
-    
-//     const productionCostNum = parseFloat(productionCost || "50");
-//     const productionCostWastedPerYear = productionCostNum * productionLossPerYear;
+  
+//   // Calculate Production Loss per year (8000 hours per year)
+//   const productionLossPerYear = mwLoss * 8000;
+  
+//   // Calculate Revenue Loss per year
+//   const sellPriceNum = parseFloat(sellPricePerMWh || "0");
+//   const revenueLossPerYear = sellPriceNum * productionLossPerYear;
+  
+//   // Calculate Production Cost Wasted per year
+//   const productionCostNum = parseFloat(productionCost || "50");
+//   const productionCostWastedPerYear = productionCostNum * productionLossPerYear;
 
-//     // Convert back to user units
-//     let displayLeakRate = finalCorrectedLeakRate;
-//     if (wcrUnit === "KG/S") displayLeakRate = finalCorrectedLeakRate / 3.6;
-//     else if (wcrUnit === "KPPH/HR") displayLeakRate = finalCorrectedLeakRate / (1/2.24);
-//     else if (wcrUnit === "LB/S") displayLeakRate = finalCorrectedLeakRate / (3600/2240);
+//   // Convert leak rate to selected unit for display
+//   let displayLeakRate = finalCorrectedLeakRate;
+//   if (wcrUnit === "KG/S") displayLeakRate = finalCorrectedLeakRate / 3.6;
+//   else if (wcrUnit === "KPPH/HR") displayLeakRate = finalCorrectedLeakRate / (1/2.24);
+//   else if (wcrUnit === "LB/S") displayLeakRate = finalCorrectedLeakRate / (3600/2240);
+//   else displayLeakRate = finalCorrectedLeakRate; // T/HR
 
-//     // Format results
-//     const formattedLeakRate = wcrUnit !== "T/HR" 
-//       ? Math.floor(Math.abs(displayLeakRate)).toString()
-//       : Math.abs(displayLeakRate).toFixed(2);
+//   // Format results
+//   const formattedLeakRate = displayLeakRate.toFixed(2);
+//   const formattedMwLoss = mwLoss.toFixed(2);
+//   const formattedHrPenalty = hrPenalty.toFixed(1);
+//   const formattedProductionLoss = productionLossPerYear.toFixed(1);
+//   const formattedRevenueLoss = revenueLossPerYear.toFixed(1);
+//   const formattedProductionCostWasted = productionCostWastedPerYear.toFixed(1);
 
-//     setCalculatedResults({
-//       leakRate: formattedLeakRate,
-//       mwLoss: Math.abs(mwLoss).toFixed(2),
-//       hrPenalty: Math.abs(hrPenalty).toFixed(2),
-//       productionLoss: Math.abs(productionLossPerYear).toFixed(2),
-//       revenueLoss: Math.abs(revenueLossPerYear).toFixed(2),
-//       productionCostWasted: Math.abs(productionCostWastedPerYear).toFixed(2),
-//       hasWarning: false,
-//       warningMessages: []
-//     });
+//   console.log("Calculation Debug:", {
+//     finalCorrectedLeakRate,
+//     wcorrInKgPerSec,
+//     CpstH,
+//     CpstL,
+//     mwLoss: mwLoss,
+//     hrValue: hrValue,
+//     mcrFlowRate: mcrFlowRate,
+//     hrPenalty: hrPenalty,
+//   });
 
-//     setResult(formattedLeakRate);
-//     setWarnings([]);
-//     setHasWarning(false);
-//     setShowOutput(true);
-//     setModalVisible(true); // Show modal with results
-//     scrollToTop();
-//   };
+//   setCalculatedResults({
+//     leakRate: formattedLeakRate,
+//     mwLoss: formattedMwLoss,
+//     hrPenalty: formattedHrPenalty,
+//     productionLoss: formattedProductionLoss,
+//     revenueLoss: formattedRevenueLoss,
+//     productionCostWasted: formattedProductionCostWasted,
+//     hasWarning: false,
+//     warningMessages: []
+//   });
+
+//   setResult(formattedLeakRate);
+//   setWarnings([]);
+//   setHasWarning(false);
+//   setShowOutput(true);
+//   setModalVisible(true);
+//   scrollToTop();
+// };
 
 //  const resetAll = () => {
 //   if (initialCalculatorValues) {
@@ -3337,20 +2064,20 @@
 
 //               <View style={styles.resultItem}>
 //                 <Text style={styles.resultLabel}>Production loss per year:</Text>
-//                 <Text style={styles.resultValue}>{calculatedResults.productionLoss} MW-h</Text>
+//                 <Text style={styles.resultValue}>{formatNumberWithCommas(calculatedResults.productionLoss)} MW-h</Text>
 //               </View>
 
 //               <View style={styles.resultItem}>
 //                 <Text style={styles.resultLabel}>Revenue loss per year:</Text>
 //                 <Text style={styles.resultValue}>
-//                   {currency} {Number(calculatedResults.revenueLoss).toLocaleString(undefined, {maximumFractionDigits: 2})}
+//                   {getCurrencySymbol(currency)} {formatNumberWithCommas(calculatedResults.revenueLoss)}
 //                 </Text>
 //               </View>
 
 //               <View style={styles.resultItem}>
 //                 <Text style={styles.resultLabel}>Production Cost Wasted per year:</Text>
 //                 <Text style={styles.resultValue}>
-//                   {currency} {Number(calculatedResults.productionCostWasted).toLocaleString(undefined, {maximumFractionDigits: 2})}
+//                   {getCurrencySymbol(currency)} {formatNumberWithCommas(calculatedResults.productionCostWasted)}
 //                 </Text>
 //               </View>
 //             </ScrollView>
@@ -3377,6 +2104,7 @@
 //   },
 //   backButton: {
 //     position: "absolute",
+//     bottom:10,
 //     top: 10,
 //     left: 15,
 //     flexDirection: 'row',
@@ -3528,9 +2256,6 @@
 // });
 
 
-
-//////////////////////////////////////////////////////////////////
-
 import React, { useRef, useState, useEffect } from "react";
 import {
   Image,
@@ -3545,12 +2270,18 @@ import {
   LayoutChangeEvent,
   Modal,
   Dimensions,
+  LogBox,
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import Reanimated, { FadeIn } from "react-native-reanimated";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Ionicons } from '@expo/vector-icons';
 import api from "./axiosInstance";
+
+// Ignore the VirtualizedLists warning
+LogBox.ignoreLogs([
+  'VirtualizedLists should never be nested inside plain ScrollViews',
+]);
 
 // ⚠️ REPLACE THIS WITH YOUR ACTUAL IMAGE IMPORT
 const LeakDiagramImage = require('../assets/images/image.png');
@@ -3576,6 +2307,7 @@ interface ValidationResult {
   shouldCalculate: boolean;
   missingFields: string[];
 }
+
 
 export default function CalculatorScreen() {
   const router = useRouter();
@@ -3659,6 +2391,14 @@ export default function CalculatorScreen() {
     { label: "°F", value: "F" },
   ]);
 
+  // D2 Unit states (Pipe Diameter Unit)
+  const [openD2Unit, setOpenD2Unit] = useState(false);
+  const [d2Unit, setD2Unit] = useState<"MM" | "IN">("MM");
+  const [d2UnitItems, setD2UnitItems] = useState([
+    { label: "MM", value: "MM" },
+    { label: "IN", value: "IN" },
+  ]);
+
   // Additional data states
   const [currency, setCurrency] = useState("INR");
   const [heatRateUnit, setHeatRateUnit] = useState("kJ/kW-h");
@@ -3702,20 +2442,37 @@ const [calculatorInputs, setCalculatorInputs] = useState({
   ww: "",
   p1Unit: "bara" as "bara" | "psia",
   t1Unit: "C" as "C" | "F",
-  wcrUnit: "T/HR" as "T/HR" | "KG/S" | "KPPH/HR" | "LB/S"
+  wcrUnit: "T/HR" as "T/HR" | "KG/S" | "KPPH/HR" | "LB/S",
+  d2Unit: "MM" as "MM" | "IN"
 });
 
-// Helper function to format numbers with commas
+// Update the formatNumberWithCommas function to handle whole numbers properly
+// Update the formatNumberWithCommas function
 const formatNumberWithCommas = (value: string | number): string => {
-  const num = typeof value === 'string' ? parseFloat(value) : value;
+  // Convert to number if string
+  let num: number;
+  if (typeof value === 'string') {
+    num = parseFloat(value);
+  } else {
+    num = value;
+  }
+  
   if (isNaN(num)) return "0";
   
-  // Split into integer and decimal parts
-  const parts = num.toFixed(2).split('.');
-  const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  const decimalPart = parts[1];
+  // Check if the number has decimal part
+  const hasDecimal = num % 1 !== 0;
   
-  return `${integerPart}.${decimalPart}`;
+  if (hasDecimal) {
+    // Format with existing decimal places (preserve original decimals)
+    const numStr = num.toString();
+    const parts = numStr.split('.');
+    const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    const decimalPart = parts[1];
+    return `${integerPart}.${decimalPart}`;
+  } else {
+    // Format without decimal places
+    return num.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  }
 };
 
 // Helper function to get currency symbol
@@ -3745,19 +2502,20 @@ const getCurrencySymbol = (currencyCode: string): string => {
 useEffect(() => {
   setCalculatorInputs({
     P1, P2, T1, T2p, TCRH, Tmix, WCRH, D2, tw, ww,
-    p1Unit, t1Unit, wcrUnit
+    p1Unit, t1Unit, wcrUnit, d2Unit
   });
-}, [P1, P2, T1, T2p, TCRH, Tmix, WCRH, D2, tw, ww, p1Unit, t1Unit, wcrUnit]);
+}, [P1, P2, T1, T2p, TCRH, Tmix, WCRH, D2, tw, ww, p1Unit, t1Unit, wcrUnit, d2Unit]);
 
   // Initialize all values from passed parameters
-// In CalculatorScreen.tsx, update the useEffect that initializes from params
-
 useEffect(() => {
   console.log("Received params in calculator:", parsedPowerStationData);
   
   // Basic plant data
   if (pipeDiaD2) setD2(pipeDiaD2);
-  if (paramPipeDiaUnit) setPipeDiaUnit(paramPipeDiaUnit);
+  if (paramPipeDiaUnit) {
+    setPipeDiaUnit(paramPipeDiaUnit);
+    setD2Unit(paramPipeDiaUnit as "MM" | "IN");
+  }
 
   if (parsedPowerStationData.plantMCR) {
     setPlantMCR(parsedPowerStationData.plantMCR);
@@ -3848,6 +2606,7 @@ useEffect(() => {
       setP1Unit(savedCalculatorData.p1Unit || "bara");
       setT1Unit(savedCalculatorData.t1Unit || "C");
       setWcrUnit(savedCalculatorData.wcrUnit || "T/HR");
+      setD2Unit(savedCalculatorData.d2Unit || "MM");
     } catch (error) {
       console.error("Error parsing calculator data:", error);
     }
@@ -3925,8 +2684,13 @@ useEffect(() => {
         if (numValue > 2500) fieldSpecificWarnings.push("W_CRH out of bounds (HIGH) (500-2500)");
         break;
       case 'D2':
-        if (numValue < 300) fieldSpecificWarnings.push("D2 out of bounds (LOW) (300-600)");
-        if (numValue > 600) fieldSpecificWarnings.push("D2 out of bounds (HIGH) (300-600)");
+        // Convert to MM for bounds checking if needed
+        let d2ValueMM = numValue;
+        if (d2Unit === "IN") {
+          d2ValueMM = numValue * 25.4;
+        }
+        if (d2ValueMM < 300) fieldSpecificWarnings.push("D2 out of bounds (LOW) (300-600 MM)");
+        if (d2ValueMM > 600) fieldSpecificWarnings.push("D2 out of bounds (HIGH) (300-600 MM)");
         break;
     }
     
@@ -3948,7 +2712,7 @@ useEffect(() => {
     newFieldWarnings.D2 = validateField('D2', D2, allValues);
     
     setFieldWarnings(newFieldWarnings);
-  }, [P1, P2, T1, T2p, TCRH, Tmix, WCRH, D2]);
+  }, [P1, P2, T1, T2p, TCRH, Tmix, WCRH, D2, d2Unit]);
 
   const rememberY = (key: string) => (e: LayoutChangeEvent) => {
     fieldPositions[key] = e.nativeEvent.layout.y;
@@ -3961,15 +2725,13 @@ useEffect(() => {
   };
 
  // Update the goBackToEdit function to preserve all calculator values
-// In CalculatorScreen.tsx, update the goBackToEdit function
-
 const goBackToEdit = () => {
   // Prepare all data to send back, including ALL calculator inputs
   const powerStationData = {
     // Basic plant data from first screen
     stationName: stationName,
     pipeDiaD2: D2,
-    pipeDiaUnit: pipeDiaUnit,
+    pipeDiaUnit: d2Unit,
     plantType: plantType,
     criticalType: criticalType,
     plantMCR: plantMCR,
@@ -3999,6 +2761,7 @@ const goBackToEdit = () => {
     p1Unit: p1Unit === "bara" ? "barA" : "psiA",
     t1Unit: t1Unit === "C" ? "deg C" : "deg F",
     wcrhUnit: wcrUnit,
+    pipeDiaUnit: d2Unit,
   };
 
   console.log("Sending back to edit screen:", powerStationData); // Debug log
@@ -4017,9 +2780,9 @@ const goBackToEdit = () => {
 useEffect(() => {
   console.log("Current calculator values:", {
     P1, P2, T1, T2p, TCRH, Tmix, WCRH, D2, tw, ww,
-    p1Unit, t1Unit, wcrUnit
+    p1Unit, t1Unit, wcrUnit, d2Unit
   });
-}, [P1, P2, T1, T2p, TCRH, Tmix, WCRH, D2, tw, ww, p1Unit, t1Unit, wcrUnit]);
+}, [P1, P2, T1, T2p, TCRH, Tmix, WCRH, D2, tw, ww, p1Unit, t1Unit, wcrUnit, d2Unit]);
 
   // Unit conversion function
  const convertUnits = () => {
@@ -4058,7 +2821,7 @@ useEffect(() => {
   // For T/HR, keep as is
 
   // D2 conversion (IN to MM)
-  if (pipeDiaUnit === "IN") {
+  if (d2Unit === "IN") {
     d2 = d2 * 25.4;
   }
 
@@ -4085,7 +2848,7 @@ useEffect(() => {
     if (!TCRH) missing.push("TCRH");
     if (!Tmix) missing.push("T-MIX");
     if (!WCRH) missing.push("W-CRH");
-    if (!D2) missing.push("D2");
+    if (!D2) missing.push("D2 (HP Bypass Outlet Pipe Diameter)");
     
     return missing;
   };
@@ -4119,7 +2882,12 @@ useEffect(() => {
     const tcrh = Number.parseFloat(TCRH) || 0;
     const tmix = Number.parseFloat(Tmix) || 0;
     const wcrh = Number.parseFloat(WCRH) || 0;
-    const d2 = Number.parseFloat(D2) || 0;
+    let d2 = Number.parseFloat(D2) || 0;
+
+    // Convert D2 to MM for bounds checking
+    if (d2Unit === "IN") {
+      d2 = d2 * 25.4;
+    }
 
     // P1 bounds (80-280 barA)
     if (p1 < 80) {
@@ -4306,6 +3074,10 @@ useEffect(() => {
     performCalculation();
   };
 
+// Update the performCalculation function - specifically the production loss formatting
+
+// Update the production loss formatting in performCalculation function
+
 const performCalculation = () => {
   // Convert units for calculation
   const converted = convertUnits();
@@ -4343,9 +3115,7 @@ const performCalculation = () => {
   // MW LOSS calculation
   const mwLoss = 0.9 * wcorrInKgPerSec * ((CpstH * t1) - (CpstL * t2))/1000;
   
-  // *** FIXED: Heat Rate Penalty calculation ***
-  // Formula: D-HR = HR × MW_loss / MCR
-  // Where MCR is the Plant MCR Flow Rate in mt/h
+  // Heat Rate Penalty calculation
   let hrPenalty = 0;
   if (mcrFlowRate > 0 && mwLoss > 0) {
     hrPenalty = hrValue * (mwLoss / mcrFlowRate);
@@ -4373,9 +3143,17 @@ const performCalculation = () => {
   const formattedLeakRate = displayLeakRate.toFixed(2);
   const formattedMwLoss = mwLoss.toFixed(2);
   const formattedHrPenalty = hrPenalty.toFixed(1);
-  const formattedProductionLoss = productionLossPerYear.toFixed(1);
-  const formattedRevenueLoss = revenueLossPerYear.toFixed(1);
-  const formattedProductionCostWasted = productionCostWastedPerYear.toFixed(1);
+  
+  // Production loss per year - exactly 1 decimal place WITHOUT trailing zero
+  // This will show "21,336.8" instead of "21,336.80"
+  const productionLossRounded = Math.round(productionLossPerYear * 10) / 10;
+  const formattedProductionLoss = productionLossRounded.toString();
+  
+  // Revenue loss per year - rounded to whole number (no decimal)
+  const formattedRevenueLoss = Math.round(revenueLossPerYear).toString();
+  
+  // Production Cost Wasted per year - rounded to whole number (no decimal)
+  const formattedProductionCostWasted = Math.round(productionCostWastedPerYear).toString();
 
   console.log("Calculation Debug:", {
     finalCorrectedLeakRate,
@@ -4386,6 +3164,12 @@ const performCalculation = () => {
     hrValue: hrValue,
     mcrFlowRate: mcrFlowRate,
     hrPenalty: hrPenalty,
+    productionLossPerYear,
+    formattedProductionLoss,
+    revenueLossPerYear,
+    formattedRevenueLoss,
+    productionCostWastedPerYear,
+    formattedProductionCostWasted,
   });
 
   setCalculatedResults({
@@ -4406,7 +3190,6 @@ const performCalculation = () => {
   setModalVisible(true);
   scrollToTop();
 };
-
  const resetAll = () => {
   if (initialCalculatorValues) {
     // Reset to saved values instead of empty
@@ -4423,6 +3206,7 @@ const performCalculation = () => {
     setP1Unit(initialCalculatorValues.p1Unit || "bara");
     setT1Unit(initialCalculatorValues.t1Unit || "C");
     setWcrUnit(initialCalculatorValues.wcrUnit || "T/HR");
+    setD2Unit(initialCalculatorValues.d2Unit || "MM");
   } else {
     // Regular reset to empty
     setP1("");
@@ -4461,7 +3245,7 @@ const performCalculation = () => {
       const finalPayload = {
         power_station_name: stationName,
         pipe_dia_d2: D2,
-        pipe_dia_unit: pipeDiaUnit,
+        pipe_dia_unit: d2Unit,
         t2p: T2p,
         p1: P1,
         p1_unit: p1Unit,
@@ -4544,6 +3328,7 @@ const performCalculation = () => {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        removeClippedSubviews={false}
       >
         <View style={styles.container}>
           <View style={styles.diagramImageContainer}>
@@ -4578,6 +3363,9 @@ const performCalculation = () => {
                 style={styles.unitDropdownBox}
                 dropDownContainerStyle={styles.unitDropdownList}
                 textStyle={styles.unitDropdownText}
+                listMode="SCROLLVIEW"
+                zIndex={3000}
+                zIndexInverse={1000}
               />
             </View>
             <View style={{ flex: 1, marginLeft: 8 }} onLayout={rememberY("T1")}>
@@ -4604,13 +3392,16 @@ const performCalculation = () => {
                 style={styles.unitDropdownBox}
                 dropDownContainerStyle={styles.unitDropdownList}
                 textStyle={styles.unitDropdownText}
+                listMode="SCROLLVIEW"
+                zIndex={2900}
+                zIndexInverse={900}
               />
             </View>
           </View>
 
-          {/* T2p */}
+          {/* T2p, D2, and Unit Row - T2p on left, D2 with unit on right */}
           <View style={styles.row}>
-            <View onLayout={rememberY("T2p")} style={styles.inputWrapper}>
+            <View onLayout={rememberY("T2p")} style={[styles.inputWrapper, { marginTop: 13 }]}>
               <Text style={styles.inputLabel}>T2p</Text>
               <TextInput
                 style={[styles.input, fieldWarnings.T2p.length > 0 && styles.inputError]}
@@ -4621,6 +3412,35 @@ const performCalculation = () => {
                 placeholderTextColor="#FF4D57"
               />
               {renderFieldWarning('T2p')}
+            </View>
+            <View onLayout={rememberY("D2")} style={styles.inputWrapper}>
+              <Text style={styles.inputLabel}>HP Bypass Outlet Pipe Diameter (D2)</Text>
+              <TextInput
+                style={[styles.input, fieldWarnings.D2.length > 0 && styles.inputError]}
+                keyboardType="numeric"
+                value={D2}
+                onChangeText={setD2}
+                placeholder="00"
+                placeholderTextColor="#FF4D57"
+              />
+              {renderFieldWarning('D2')}
+            </View>
+            <View style={{ width: 90, marginLeft: 8, marginTop: 14, zIndex: 2000 }}>
+              <Text style={styles.inputLabel}>Unit</Text>
+              <DropDownPicker
+                open={openD2Unit}
+                value={d2Unit}
+                items={d2UnitItems}
+                setOpen={setOpenD2Unit}
+                setValue={setD2Unit}
+                setItems={setD2UnitItems}
+                style={styles.unitDropdownBox}
+                dropDownContainerStyle={styles.unitDropdownList}
+                textStyle={styles.unitDropdownText}
+                listMode="SCROLLVIEW"
+                zIndex={2000}
+                zIndexInverse={800}
+              />
             </View>
           </View>
 
@@ -4666,7 +3486,7 @@ const performCalculation = () => {
               />
               {renderFieldWarning('WCRH')}
             </View>
-            <View onLayout={rememberY("Unit")} style={{ flex: 1, marginRight: 8, zIndex: 3000 }}>
+            <View onLayout={rememberY("Unit")} style={{ flex: 1, marginRight: 8, zIndex: 1000 }}>
               <Text style={styles.inputLabels}>Unit</Text>
               <DropDownPicker
                 open={open}
@@ -4680,8 +3500,8 @@ const performCalculation = () => {
                 textStyle={styles.dropdownText}
                 placeholderStyle={styles.dropdownText}
                 listMode="SCROLLVIEW"
-                zIndex={3000}
-                zIndexInverse={1000}
+                zIndex={1000}
+                zIndexInverse={700}
               />
             </View>
           </View>
@@ -4929,7 +3749,7 @@ const styles = StyleSheet.create({
   input: { backgroundColor: "#FFFFFF", borderRadius: 10, borderWidth: 1, borderColor: "#E5E5E5", paddingHorizontal: 12, height: 42, fontSize: 14, color: "#000", marginHorizontal: 8 },
   inputError: { borderColor: "#D60000", borderWidth: 1.5 },
   dropdown: { backgroundColor: "transparent", borderRadius: 0, borderWidth: 0, borderBottomWidth: 1, borderColor: "#FF4D57", height: 35, width: '90%', minHeight: 35, marginHorizontal: 8 },
-  dropdownList: { borderRadius: 0, zIndex: 3000, borderColor: "#FF4D57", marginHorizontal: 8 },
+  dropdownList: { borderRadius: 0, borderColor: "#FF4D57", marginHorizontal: 8 },
   dropdownText: { color: "#FF4D57", fontSize: 11, lineHeight: 18 },
   calculateBtn: { backgroundColor: "#FF4D57", padding: 12, borderRadius: 30, marginTop: 15, width: "55%", alignSelf: "center", alignItems: "center" },
   calculateText: { color: "#FFFFFF", fontSize: 16, fontWeight: "bold" },
@@ -5036,6 +3856,3 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 });
-
-
-

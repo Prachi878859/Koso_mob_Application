@@ -1,3 +1,5 @@
+
+
 // import React, { useState, useRef, useEffect } from 'react';
 // import {
 //   View,
@@ -249,21 +251,19 @@
 //     { label: 'LB/S', value: 'LB/S' },
 //   ];
 
-//   // In Additional_user_inputs.tsx, add these state variables near your other useState declarations
-
-// // Calculator values state to preserve when returning from calculator
-// const [calculatorValues, setCalculatorValues] = useState({
-//   p1Value: '',
-//   p2Value: '',
-//   t1Value: '',
-//   t2pValue: '',
-//   tcrhValue: '',
-//   tmixValue: '',
-//   wcrhValue: '',
-//   d2Value: '',
-//   twValue: '',
-//   wwValue: ''
-// });
+//   // Calculator values state to preserve when returning from calculator
+//   const [calculatorValues, setCalculatorValues] = useState({
+//     p1Value: '',
+//     p2Value: '',
+//     t1Value: '',
+//     t2pValue: '',
+//     tcrhValue: '',
+//     tmixValue: '',
+//     wcrhValue: '',
+//     d2Value: '',
+//     twValue: '',
+//     wwValue: ''
+//   });
 
 //   /* ---------------- DROPDOWN HANDLERS ---------------- */
 
@@ -321,35 +321,33 @@
 //     };
 //   }, []);
 
-// // In Additional_user_inputs.tsx, update the returning useEffect
-
-// useEffect(() => {
-//   if (returningFromCalculator && returnedData) {
-//     console.log("Returned data from calculator:", returnedData);
-    
-//     // Store calculator values
-//     setCalculatorValues({
-//       p1Value: returnedData.p1Value || '',
-//       p2Value: returnedData.p2Value || '',
-//       t1Value: returnedData.t1Value || '',
-//       t2pValue: returnedData.t2pValue || '',
-//       tcrhValue: returnedData.tcrhValue || '',
-//       tmixValue: returnedData.tmixValue || '',
-//       wcrhValue: returnedData.wcrhValue || '',
-//       d2Value: returnedData.d2Value || '',
-//       twValue: returnedData.twValue || '',
-//       wwValue: returnedData.wwValue || ''
-//     });
-    
-//     // Update units
-//     setP1Unit(returnedData.p1Unit || 'barA');
-//     setT1Unit(returnedData.t1Unit || 'deg C');
-//     setWcrhUnit(returnedData.wcrhUnit || 'T/HR');
-    
-//     setShowSuccess(true);
-//     setTimeout(() => setShowSuccess(false), 3000);
-//   }
-// }, [returningFromCalculator]);
+//   useEffect(() => {
+//     if (returningFromCalculator && returnedData) {
+//       console.log("Returned data from calculator:", returnedData);
+      
+//       // Store calculator values
+//       setCalculatorValues({
+//         p1Value: returnedData.p1Value || '',
+//         p2Value: returnedData.p2Value || '',
+//         t1Value: returnedData.t1Value || '',
+//         t2pValue: returnedData.t2pValue || '',
+//         tcrhValue: returnedData.tcrhValue || '',
+//         tmixValue: returnedData.tmixValue || '',
+//         wcrhValue: returnedData.wcrhValue || '',
+//         d2Value: returnedData.d2Value || '',
+//         twValue: returnedData.twValue || '',
+//         wwValue: returnedData.wwValue || ''
+//       });
+      
+//       // Update units
+//       setP1Unit(returnedData.p1Unit || 'barA');
+//       setT1Unit(returnedData.t1Unit || 'deg C');
+//       setWcrhUnit(returnedData.wcrhUnit || 'T/HR');
+      
+//       setShowSuccess(true);
+//       setTimeout(() => setShowSuccess(false), 3000);
+//     }
+//   }, [returningFromCalculator]);
 
 //   /* ---------------- FORM HANDLERS ---------------- */
 
@@ -461,6 +459,22 @@
 //     }
 //   };
 
+// //   // Handle Plant MCR change with validation (only number validation, no bounds)
+// // const handlePlantMCRChange = (text: string) => {
+// //   setPlantMCR(text);
+  
+// //   // Clear previous error
+// //   setErrors((prev: any) => ({ ...prev, plantMCR: null }));
+  
+// //   // Only validate if it's a valid number (no bounds checking)
+// //   if (text.trim() && isNaN(Number(text))) {
+// //     setErrors((prev: any) => ({ ...prev, plantMCR: 'Enter valid MCR' }));
+// //     setWarnings((prev: any) => ({ ...prev, plantMCR: null }));
+// //   } else {
+// //     setWarnings((prev: any) => ({ ...prev, plantMCR: null }));
+// //   }
+// // };
+
 //   // Handle Heat Rate change with validation (no auto-correction)
 //   const handleHeatRateChange = (text: string) => {
 //     setHeatRateValue(text);
@@ -568,6 +582,14 @@
 //       }
 //     }
 
+// //     // Plant MCR Validation - only required and number format check
+// // if (!plantMCR.trim()) {
+// //   newErrors.plantMCR = 'Plant MCR is required';
+// // } else if (isNaN(Number(plantMCR))) {
+// //   newErrors.plantMCR = 'Enter valid MCR';
+// // }
+// // // No bounds validation - any number is acceptable
+
 //     // Heat Rate Validation with bounds checking
 //     if (!heatRateValue.trim()) {
 //       // 👉 Set default values based on plant type
@@ -625,102 +647,102 @@
 
 
 //   const goToCalculator = () => {
-//   if (!validateForm()) {
-//     if (Object.keys(errors).length === 0 && Object.keys(warnings).length > 0) {
-//       Alert.alert(
-//         'Warning',
-//         'There are some values out of recommended range. Do you want to continue?',
-//         [
-//           { text: 'Cancel', style: 'cancel' },
-//           { 
-//             text: 'Continue', 
-//             onPress: () => {
-//               router.push({
-//                 pathname: "/CalculatorScreen",
-//                 params: {
-//   powerStationData: JSON.stringify({
-//     // Basic plant data
-//     stationName: powerStationName,
-//     pipeDiaD2: pipeDiaD2,
-//     pipeDiaUnit: pipeDiaUnit,
-//     plantType: plantType,
-//     criticalType: criticalType,
-//     plantMCR: plantMCR,
-//     heatRateValue: heatRateValue,
-//     heatRateUnit: heatRateUnit,
-//     currency: productionCostCurrency === "custom" ? customCurrency : productionCostCurrency,
-//     sellPricePerMWh: sellPricePerMWh,
-//     productionCost: productionCost,
-//     productionCostCurrency: productionCostCurrency,
-//     customCurrency: customCurrency,
-    
-//     // Calculator values from stored state
-//     p1Value: calculatorValues.p1Value,
-//     p2Value: calculatorValues.p2Value,
-//     t1Value: calculatorValues.t1Value,
-//     t2pValue: calculatorValues.t2pValue,
-//     tcrhValue: calculatorValues.tcrhValue,
-//     tmixValue: calculatorValues.tmixValue,
-//     wcrhValue: calculatorValues.wcrhValue,
-//     d2Value: calculatorValues.d2Value,
-//     twValue: calculatorValues.twValue,
-//     wwValue: calculatorValues.wwValue,
-    
-//     // Units
-//     p1Unit: p1Unit,
-//     t1Unit: t1Unit,
-//     wcrhUnit: wcrhUnit,
-//   }),
-// },
-//               });
+//     if (!validateForm()) {
+//       if (Object.keys(errors).length === 0 && Object.keys(warnings).length > 0) {
+//         Alert.alert(
+//           'Warning',
+//           'There are some values out of recommended range. Do you want to continue?',
+//           [
+//             { text: 'Cancel', style: 'cancel' },
+//             { 
+//               text: 'Continue', 
+//               onPress: () => {
+//                 router.push({
+//                   pathname: "/CalculatorScreen",
+//                   params: {
+//                     powerStationData: JSON.stringify({
+//                       // Basic plant data
+//                       stationName: powerStationName,
+//                       pipeDiaD2: pipeDiaD2,
+//                       pipeDiaUnit: pipeDiaUnit,
+//                       plantType: plantType,
+//                       criticalType: criticalType,
+//                       plantMCR: plantMCR,
+//                       heatRateValue: heatRateValue,
+//                       heatRateUnit: heatRateUnit,
+//                       currency: productionCostCurrency === "custom" ? customCurrency : productionCostCurrency,
+//                       sellPricePerMWh: sellPricePerMWh,
+//                       productionCost: productionCost,
+//                       productionCostCurrency: productionCostCurrency,
+//                       customCurrency: customCurrency,
+                      
+//                       // Calculator values from stored state
+//                       p1Value: calculatorValues.p1Value,
+//                       p2Value: calculatorValues.p2Value,
+//                       t1Value: calculatorValues.t1Value,
+//                       t2pValue: calculatorValues.t2pValue,
+//                       tcrhValue: calculatorValues.tcrhValue,
+//                       tmixValue: calculatorValues.tmixValue,
+//                       wcrhValue: calculatorValues.wcrhValue,
+//                       d2Value: calculatorValues.d2Value,
+//                       twValue: calculatorValues.twValue,
+//                       wwValue: calculatorValues.wwValue,
+                      
+//                       // Units
+//                       p1Unit: p1Unit,
+//                       t1Unit: t1Unit,
+//                       wcrhUnit: wcrhUnit,
+//                     }),
+//                   },
+//                 });
+//               }
 //             }
-//           }
-//         ]
-//       );
+//           ]
+//         );
+//         return;
+//       }
 //       return;
 //     }
-//     return;
-//   }
 
-//   router.push({
-//     pathname: "/CalculatorScreen",
-//     params: {
-//       powerStationData: JSON.stringify({
-//         // Basic plant data
-//         stationName: powerStationName,
-//         pipeDiaD2: pipeDiaD2,
-//         pipeDiaUnit: pipeDiaUnit,
-//         plantType: plantType,
-//         criticalType: criticalType,
-//         plantMCR: plantMCR,
-//         heatRateValue: heatRateValue,
-//         heatRateUnit: heatRateUnit,
-//         currency: productionCostCurrency === "custom" ? customCurrency : productionCostCurrency,
-//         sellPricePerMWh: sellPricePerMWh,
-//         productionCost: productionCost,
-//         productionCostCurrency: productionCostCurrency,
-//         customCurrency: customCurrency,
-        
-//         // Calculator values from returned data (if any)
-//         p1Value: returnedData.p1Value || '',
-//         p2Value: returnedData.p2Value || '',
-//         t1Value: returnedData.t1Value || '',
-//         t2pValue: returnedData.t2pValue || '',
-//         tcrhValue: returnedData.tcrhValue || '',
-//         tmixValue: returnedData.tmixValue || '',
-//         wcrhValue: returnedData.wcrhValue || '',
-//         d2Value: returnedData.d2Value || '',
-//         twValue: returnedData.twValue || '',
-//         wwValue: returnedData.wwValue || '',
-        
-//         // Units
-//         p1Unit: p1Unit,
-//         t1Unit: t1Unit,
-//         wcrhUnit: wcrhUnit,
-//       }),
-//     },
-//   });
-// };
+//     router.push({
+//       pathname: "/CalculatorScreen",
+//       params: {
+//         powerStationData: JSON.stringify({
+//           // Basic plant data
+//           stationName: powerStationName,
+//           pipeDiaD2: pipeDiaD2,
+//           pipeDiaUnit: pipeDiaUnit,
+//           plantType: plantType,
+//           criticalType: criticalType,
+//           plantMCR: plantMCR,
+//           heatRateValue: heatRateValue,
+//           heatRateUnit: heatRateUnit,
+//           currency: productionCostCurrency === "custom" ? customCurrency : productionCostCurrency,
+//           sellPricePerMWh: sellPricePerMWh,
+//           productionCost: productionCost,
+//           productionCostCurrency: productionCostCurrency,
+//           customCurrency: customCurrency,
+          
+//           // Calculator values from returned data (if any)
+//           p1Value: returnedData.p1Value || '',
+//           p2Value: returnedData.p2Value || '',
+//           t1Value: returnedData.t1Value || '',
+//           t2pValue: returnedData.t2pValue || '',
+//           tcrhValue: returnedData.tcrhValue || '',
+//           tmixValue: returnedData.tmixValue || '',
+//           wcrhValue: returnedData.wcrhValue || '',
+//           d2Value: returnedData.d2Value || '',
+//           twValue: returnedData.twValue || '',
+//           wwValue: returnedData.wwValue || '',
+          
+//           // Units
+//           p1Unit: p1Unit,
+//           t1Unit: t1Unit,
+//           wcrhUnit: wcrhUnit,
+//         }),
+//       },
+//     });
+//   };
 
 //   const handleContentLayout = (event: any) => {
 //     const { height } = event.nativeEvent.layout;
@@ -796,14 +818,24 @@
 //                 />
 //               </View>
 
-//               {/* Pipe Diameter and Unit in same row */}
-//               <View style={styles.doubleFieldContainer}>
-//                 {/* Pipe Diameter Field */}
-//                 <View style={styles.singleFieldContainer}>
-//                   <Text style={styles.fieldLabel}>HP Bypass Outlet Pipe Diameter <Text style={styles.requiredStar}>*</Text></Text>
+              
+//               <View style={styles.pipeDiameterRow}>
+//                 <View style={styles.pipeDiameterLabelContainer}>
+//                   <Text style={styles.fieldLabel}>
+//                     HP Bypass Outlet Pipe Diameter <Text style={styles.requiredStar}>*</Text>
+//                   </Text>
+//                 </View>
+//                 <View style={styles.unitLabelContainer}>
+//                   <Text style={styles.fieldLabel}>Unit</Text>
+//                 </View>
+//               </View>
+              
+          
+//               <View style={styles.pipeDiameterInputRow}>
+//                 <View style={styles.pipeDiameterInputContainer}>
 //                   <TextInput
 //                     style={[
-//                       styles.input,
+//                       styles.pipeDiameterInput,
 //                       errors.pipeDiaD2 && styles.errorInput,
 //                       warnings.pipeDiaD2 && styles.warningInput
 //                     ]}
@@ -820,10 +852,7 @@
 //                     <Text style={styles.warningText}>{warnings.pipeDiaD2}</Text>
 //                   )}
 //                 </View>
-
-//                 {/* Pipe Diameter Unit Dropdown - OPEN UPWARDS */}
-//                 <View style={[styles.singleFieldContainer, { zIndex: 5000 }]}>
-//                   <Text style={styles.fieldLabel}>Unit</Text>
+//                 <View style={styles.unitDropdownContainer}>
 //                   <CustomDropdown
 //                     open={pipeDiaUnitOpen}
 //                     value={pipeDiaUnit}
@@ -1005,9 +1034,9 @@
 //                       ]}
 //                       setOpen={setCurrencyOpen}
 //                       setValue={(callback) => {
-//   const value = callback(productionCostCurrency);
-//   setProductionCostCurrency(value);
-// }}
+//                         const value = callback(productionCostCurrency);
+//                         setProductionCostCurrency(value);
+//                       }}
 //                       setItems={setCurrencyItems}
 //                       listMode="SCROLLVIEW"
 //                       style={[styles.dropdown, { height: 50 }]}
@@ -1397,7 +1426,45 @@
 //     flex: 1,
 //     lineHeight: 16,
 //   },
+//   // New styles for HP Bypass Outlet Pipe Diameter
+//   pipeDiameterRow: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     marginBottom: 8,
+//   },
+//   pipeDiameterLabelContainer: {
+//     flex: 2,
+//   },
+//   unitLabelContainer: {
+//     flex: 1,
+//   },
+//   pipeDiameterInputRow: {
+//     flexDirection: 'row',
+//     alignItems: 'flex-start',
+//     gap: 15,
+//   },
+//   pipeDiameterInputContainer: {
+//     flex: 2,
+//   },
+//   pipeDiameterInput: {
+//     borderWidth: 1,
+//     borderColor: '#E0E0E0',
+//     borderRadius: 8,
+//     paddingHorizontal: 12,
+//     fontSize: 14,
+//     backgroundColor: '#FFF',
+//     height: 50,
+//     color: '#333',
+//   },
+//   unitDropdownContainer: {
+//     flex: 2,
+//     zIndex: 4000,
+//   },
 // });
+
+
+
+
 
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -1550,12 +1617,6 @@ export default function AdditionalUserInputsScreen() {
   const [powerStationName, setPowerStationName] = useState(
     returnedData.stationName || ''
   );
-  const [pipeDiaD2, setPipeDiaD2] = useState(
-    returnedData.pipeDiaD2 || ''
-  );
-  const [pipeDiaUnit, setPipeDiaUnit] = useState<string | null>(
-    returnedData.pipeDiaUnit || 'MM'
-  );
   const [plantType, setPlantType] = useState<string | null>(
     returnedData.plantType || null
   );
@@ -1585,7 +1646,6 @@ export default function AdditionalUserInputsScreen() {
   );
 
   // Dropdown states
-  const [pipeDiaUnitOpen, setPipeDiaUnitOpen] = useState(false);
   const [plantTypeOpen, setPlantTypeOpen] = useState(false);
   const [criticalTypeOpen, setCriticalTypeOpen] = useState(false);
   const [heatRateUnitOpen, setHeatRateUnitOpen] = useState(false);
@@ -1612,11 +1672,6 @@ export default function AdditionalUserInputsScreen() {
   const scrollViewRef = useRef<ScrollView>(null);
 
   /* ---------------- DROPDOWN DATA ---------------- */
-
-  const pipeDiaUnitItems: DropdownItem[] = [
-    { label: 'MM', value: 'MM' },
-    { label: 'IN', value: 'IN' },
-  ];
 
   const plantTypeItems: DropdownItem[] = [
     { label: 'Coal-/Oil-Fired', value: 'coal_oil_fired' },
@@ -1668,7 +1723,6 @@ export default function AdditionalUserInputsScreen() {
   /* ---------------- DROPDOWN HANDLERS ---------------- */
 
   const closeAllDropdowns = () => {
-    setPipeDiaUnitOpen(false);
     setPlantTypeOpen(false);
     setCriticalTypeOpen(false);
     setHeatRateUnitOpen(false);
@@ -1678,9 +1732,6 @@ export default function AdditionalUserInputsScreen() {
   const handleOpenDropdown = (dropdownName: string) => {
     closeAllDropdowns();
     switch (dropdownName) {
-      case 'pipeDiaUnit':
-        setPipeDiaUnitOpen(true);
-        break;
       case 'plantType':
         setPlantTypeOpen(true);
         break;
@@ -1767,26 +1818,6 @@ export default function AdditionalUserInputsScreen() {
 
   /* ---------------- VALIDATION FUNCTIONS ---------------- */
 
-  // Validate Pipe Diameter D2 with bounds checking (300-600)
-  const validatePipeDiameter = (value: string): { isValid: boolean; warning: string | null } => {
-    if (!value.trim()) {
-      return { isValid: false, warning: null };
-    }
-    
-    const numValue = Number(value);
-    if (isNaN(numValue)) {
-      return { isValid: false, warning: null };
-    }
-
-    if (numValue < 300) {
-      return { isValid: false, warning: 'Pipe Diameter out of bounds (LOW) (300-600)' };
-    } else if (numValue > 600) {
-      return { isValid: false, warning: 'Pipe Diameter out of bounds (HIGH) (300-600)' };
-    }
-    
-    return { isValid: true, warning: null };
-  };
-
   // Validate Plant MCR with bounds checking
   const validatePlantMCR = (value: string): { isValid: boolean; warning: string | null } => {
     if (!value.trim()) {
@@ -1827,22 +1858,6 @@ export default function AdditionalUserInputsScreen() {
     return { isValid: true, warning: null };
   };
 
-  // Handle Pipe Diameter change with validation
-  const handlePipeDiameterChange = (text: string) => {
-    setPipeDiaD2(text);
-    
-    // Clear previous error
-    setErrors((prev: any) => ({ ...prev, pipeDiaD2: null }));
-    
-    // Validate and set warning
-    const { isValid, warning } = validatePipeDiameter(text);
-    if (!isValid && warning) {
-      setWarnings((prev: any) => ({ ...prev, pipeDiaD2: warning }));
-    } else {
-      setWarnings((prev: any) => ({ ...prev, pipeDiaD2: null }));
-    }
-  };
-
   // Handle Plant MCR change with validation
   const handlePlantMCRChange = (text: string) => {
     setPlantMCR(text);
@@ -1858,22 +1873,6 @@ export default function AdditionalUserInputsScreen() {
       setWarnings((prev: any) => ({ ...prev, plantMCR: null }));
     }
   };
-
-//   // Handle Plant MCR change with validation (only number validation, no bounds)
-// const handlePlantMCRChange = (text: string) => {
-//   setPlantMCR(text);
-  
-//   // Clear previous error
-//   setErrors((prev: any) => ({ ...prev, plantMCR: null }));
-  
-//   // Only validate if it's a valid number (no bounds checking)
-//   if (text.trim() && isNaN(Number(text))) {
-//     setErrors((prev: any) => ({ ...prev, plantMCR: 'Enter valid MCR' }));
-//     setWarnings((prev: any) => ({ ...prev, plantMCR: null }));
-//   } else {
-//     setWarnings((prev: any) => ({ ...prev, plantMCR: null }));
-//   }
-// };
 
   // Handle Heat Rate change with validation (no auto-correction)
   const handleHeatRateChange = (text: string) => {
@@ -1896,7 +1895,6 @@ export default function AdditionalUserInputsScreen() {
   const clearAllFormFields = () => {
     // Clear all text inputs
     setPowerStationName('');
-    setPipeDiaD2('');
     setPlantMCR('');
     setHeatRateValue('');
     setProductionCost('');
@@ -1904,7 +1902,6 @@ export default function AdditionalUserInputsScreen() {
     setSellPricePerMWh('');
 
     // Reset all dropdowns to default values
-    setPipeDiaUnit('MM');
     setPlantType(null);
     setCriticalType(null);
     setHeatRateUnit('kJ/kW-h');
@@ -1924,8 +1921,8 @@ export default function AdditionalUserInputsScreen() {
   const prepareApiData = (): PlantData => {
     return {
       power_station_name: powerStationName.trim(),
-      pipe_dia_d2: pipeDiaD2 || null,
-      pipe_dia_unit: pipeDiaUnit || null,
+      pipe_dia_d2: null,
+      pipe_dia_unit: null,
       plant_type: plantType || null,
       critical_type: criticalType || null,
       plant_mcr: plantMCR || null,
@@ -1945,19 +1942,6 @@ export default function AdditionalUserInputsScreen() {
     // Power Station Name
     if (!powerStationName.trim()) {
       newErrors.powerStationName = 'Power station name is required';
-    }
-
-    // Pipe Diameter Validation with bounds checking
-    if (!pipeDiaD2.trim()) {
-      newErrors.pipeDiaD2 = 'Pipe diameter is required';
-    } else if (isNaN(Number(pipeDiaD2))) {
-      newErrors.pipeDiaD2 = 'Enter valid number';
-    } else {
-      const { isValid, warning } = validatePipeDiameter(pipeDiaD2);
-      if (!isValid && warning) {
-        newWarnings.pipeDiaD2 = warning;
-        // Don't set error for out of bounds, just warning
-      }
     }
 
     // Plant Type
@@ -1981,14 +1965,6 @@ export default function AdditionalUserInputsScreen() {
         newWarnings.plantMCR = warning;
       }
     }
-
-//     // Plant MCR Validation - only required and number format check
-// if (!plantMCR.trim()) {
-//   newErrors.plantMCR = 'Plant MCR is required';
-// } else if (isNaN(Number(plantMCR))) {
-//   newErrors.plantMCR = 'Enter valid MCR';
-// }
-// // No bounds validation - any number is acceptable
 
     // Heat Rate Validation with bounds checking
     if (!heatRateValue.trim()) {
@@ -2063,8 +2039,8 @@ export default function AdditionalUserInputsScreen() {
                     powerStationData: JSON.stringify({
                       // Basic plant data
                       stationName: powerStationName,
-                      pipeDiaD2: pipeDiaD2,
-                      pipeDiaUnit: pipeDiaUnit,
+                      pipeDiaD2: null,
+                      pipeDiaUnit: null,
                       plantType: plantType,
                       criticalType: criticalType,
                       plantMCR: plantMCR,
@@ -2110,8 +2086,8 @@ export default function AdditionalUserInputsScreen() {
         powerStationData: JSON.stringify({
           // Basic plant data
           stationName: powerStationName,
-          pipeDiaD2: pipeDiaD2,
-          pipeDiaUnit: pipeDiaUnit,
+          pipeDiaD2: null,
+          pipeDiaUnit: null,
           plantType: plantType,
           criticalType: criticalType,
           plantMCR: plantMCR,
@@ -2216,57 +2192,6 @@ export default function AdditionalUserInputsScreen() {
                   placeholderTextColor="#999"
                   onFocus={closeAllDropdowns}
                 />
-              </View>
-
-              {/* HP Bypass Outlet Pipe Diameter with Unit - Both have labels in same row */}
-              <View style={styles.pipeDiameterRow}>
-                <View style={styles.pipeDiameterLabelContainer}>
-                  <Text style={styles.fieldLabel}>
-                    HP Bypass Outlet Pipe Diameter <Text style={styles.requiredStar}>*</Text>
-                  </Text>
-                </View>
-                <View style={styles.unitLabelContainer}>
-                  <Text style={styles.fieldLabel}>Unit</Text>
-                </View>
-              </View>
-              
-              {/* Pipe Diameter Input and Unit Dropdown in same row */}
-              <View style={styles.pipeDiameterInputRow}>
-                <View style={styles.pipeDiameterInputContainer}>
-                  <TextInput
-                    style={[
-                      styles.pipeDiameterInput,
-                      errors.pipeDiaD2 && styles.errorInput,
-                      warnings.pipeDiaD2 && styles.warningInput
-                    ]}
-                    value={pipeDiaD2}
-                    onChangeText={handlePipeDiameterChange}
-                    placeholder="Enter Dia"
-                    placeholderTextColor="#999"
-                    keyboardType="numeric"
-                  />
-                  {errors.pipeDiaD2 && (
-                    <Text style={styles.errorText}>{errors.pipeDiaD2}</Text>
-                  )}
-                  {warnings.pipeDiaD2 && !errors.pipeDiaD2 && (
-                    <Text style={styles.warningText}>{warnings.pipeDiaD2}</Text>
-                  )}
-                </View>
-                <View style={styles.unitDropdownContainer}>
-                  <CustomDropdown
-                    open={pipeDiaUnitOpen}
-                    value={pipeDiaUnit}
-                    items={pipeDiaUnitItems}
-                    setOpen={(open) =>
-                      open
-                        ? handleOpenDropdown('pipeDiaUnit')
-                        : setPipeDiaUnitOpen(false)
-                    }
-                    setValue={setPipeDiaUnit}
-                    placeholder="MM"
-                    zIndex={4000}
-                  />
-                </View>
               </View>
             </View>
 
@@ -2825,39 +2750,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     flex: 1,
     lineHeight: 16,
-  },
-  // New styles for HP Bypass Outlet Pipe Diameter
-  pipeDiameterRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  pipeDiameterLabelContainer: {
-    flex: 2,
-  },
-  unitLabelContainer: {
-    flex: 1,
-  },
-  pipeDiameterInputRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 15,
-  },
-  pipeDiameterInputContainer: {
-    flex: 2,
-  },
-  pipeDiameterInput: {
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    fontSize: 14,
-    backgroundColor: '#FFF',
-    height: 50,
-    color: '#333',
-  },
-  unitDropdownContainer: {
-    flex: 2,
-    zIndex: 4000,
   },
 });

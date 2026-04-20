@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "companytest",
-    "slug": "vidharbh-loan-app",
+    "name": "koso_123",
+    "slug": "koso-application",
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "leakage",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
     "splash": {
-      "image": "./assets/images/kosoimage.png",
+      "image": "./assets/images/koso_splash_image.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
@@ -20,7 +20,7 @@
       "package": "com.leakage.app",
       "versionCode": 1,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/iconkoso.png",
+        "foregroundImage": "./assets/images/koso-app-logo.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
@@ -51,9 +51,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "3cb3b399-036d-4491-be84-9ca23931bb7b"
+        "projectId": "0a077c4f-3494-4134-a224-ec44d75a75c7"
       }
     },
-    "owner": "companytest"
+    "owner": "koso_123"
   }
 }
