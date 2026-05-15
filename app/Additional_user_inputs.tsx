@@ -137,7 +137,7 @@
 
 // export default function AdditionalUserInputsScreen() {
 //   const params = useLocalSearchParams();
-  
+
 //   // Check if we're coming back from calculator with data
 //   const returningFromCalculator = params.fromCalculator === 'true';
 //   const returnedData = params.powerStationData 
@@ -324,7 +324,7 @@
 //   useEffect(() => {
 //     if (returningFromCalculator && returnedData) {
 //       console.log("Returned data from calculator:", returnedData);
-      
+
 //       // Store calculator values
 //       setCalculatorValues({
 //         p1Value: returnedData.p1Value || '',
@@ -338,12 +338,12 @@
 //         twValue: returnedData.twValue || '',
 //         wwValue: returnedData.wwValue || ''
 //       });
-      
+
 //       // Update units
 //       setP1Unit(returnedData.p1Unit || 'barA');
 //       setT1Unit(returnedData.t1Unit || 'deg C');
 //       setWcrhUnit(returnedData.wcrhUnit || 'T/HR');
-      
+
 //       setShowSuccess(true);
 //       setTimeout(() => setShowSuccess(false), 3000);
 //     }
@@ -372,7 +372,7 @@
 //     if (!value.trim()) {
 //       return { isValid: false, warning: null };
 //     }
-    
+
 //     const numValue = Number(value);
 //     if (isNaN(numValue)) {
 //       return { isValid: false, warning: null };
@@ -383,7 +383,7 @@
 //     } else if (numValue > 600) {
 //       return { isValid: false, warning: 'Pipe Diameter out of bounds (HIGH) (300-600)' };
 //     }
-    
+
 //     return { isValid: true, warning: null };
 //   };
 
@@ -392,7 +392,7 @@
 //     if (!value.trim()) {
 //       return { isValid: false, warning: null };
 //     }
-    
+
 //     const numValue = Number(value);
 //     if (isNaN(numValue)) {
 //       return { isValid: false, warning: null };
@@ -403,7 +403,7 @@
 //     } else if (numValue > 1200) {
 //       return { isValid: false, warning: 'Plant MCR out of bounds (HIGH) (100-1200)' };
 //     }
-    
+
 //     return { isValid: true, warning: null };
 //   };
 
@@ -412,7 +412,7 @@
 //     if (!value.trim()) {
 //       return { isValid: false, warning: null };
 //     }
-    
+
 //     const numValue = Number(value);
 //     if (isNaN(numValue)) {
 //       return { isValid: false, warning: null };
@@ -423,17 +423,17 @@
 //     } else if (numValue > 12000) {
 //       return { isValid: false, warning: 'Heat Rate out of bounds (HIGH) (6000-12000)' };
 //     }
-    
+
 //     return { isValid: true, warning: null };
 //   };
 
 //   // Handle Pipe Diameter change with validation
 //   const handlePipeDiameterChange = (text: string) => {
 //     setPipeDiaD2(text);
-    
+
 //     // Clear previous error
 //     setErrors((prev: any) => ({ ...prev, pipeDiaD2: null }));
-    
+
 //     // Validate and set warning
 //     const { isValid, warning } = validatePipeDiameter(text);
 //     if (!isValid && warning) {
@@ -446,10 +446,10 @@
 //   // Handle Plant MCR change with validation
 //   const handlePlantMCRChange = (text: string) => {
 //     setPlantMCR(text);
-    
+
 //     // Clear previous error
 //     setErrors((prev: any) => ({ ...prev, plantMCR: null }));
-    
+
 //     // Validate and set warning
 //     const { isValid, warning } = validatePlantMCR(text);
 //     if (!isValid && warning) {
@@ -462,10 +462,10 @@
 // //   // Handle Plant MCR change with validation (only number validation, no bounds)
 // // const handlePlantMCRChange = (text: string) => {
 // //   setPlantMCR(text);
-  
+
 // //   // Clear previous error
 // //   setErrors((prev: any) => ({ ...prev, plantMCR: null }));
-  
+
 // //   // Only validate if it's a valid number (no bounds checking)
 // //   if (text.trim() && isNaN(Number(text))) {
 // //     setErrors((prev: any) => ({ ...prev, plantMCR: 'Enter valid MCR' }));
@@ -478,10 +478,10 @@
 //   // Handle Heat Rate change with validation (no auto-correction)
 //   const handleHeatRateChange = (text: string) => {
 //     setHeatRateValue(text);
-    
+
 //     // Clear previous error
 //     setErrors((prev: any) => ({ ...prev, heatRateValue: null }));
-    
+
 //     // Validate and set warning
 //     const { isValid, warning } = validateHeatRate(text);
 //     if (!isValid && warning) {
@@ -675,7 +675,7 @@
 //                       productionCost: productionCost,
 //                       productionCostCurrency: productionCostCurrency,
 //                       customCurrency: customCurrency,
-                      
+
 //                       // Calculator values from stored state
 //                       p1Value: calculatorValues.p1Value,
 //                       p2Value: calculatorValues.p2Value,
@@ -687,7 +687,7 @@
 //                       d2Value: calculatorValues.d2Value,
 //                       twValue: calculatorValues.twValue,
 //                       wwValue: calculatorValues.wwValue,
-                      
+
 //                       // Units
 //                       p1Unit: p1Unit,
 //                       t1Unit: t1Unit,
@@ -722,7 +722,7 @@
 //           productionCost: productionCost,
 //           productionCostCurrency: productionCostCurrency,
 //           customCurrency: customCurrency,
-          
+
 //           // Calculator values from returned data (if any)
 //           p1Value: returnedData.p1Value || '',
 //           p2Value: returnedData.p2Value || '',
@@ -734,7 +734,7 @@
 //           d2Value: returnedData.d2Value || '',
 //           twValue: returnedData.twValue || '',
 //           wwValue: returnedData.wwValue || '',
-          
+
 //           // Units
 //           p1Unit: p1Unit,
 //           t1Unit: t1Unit,
@@ -818,7 +818,7 @@
 //                 />
 //               </View>
 
-              
+
 //               <View style={styles.pipeDiameterRow}>
 //                 <View style={styles.pipeDiameterLabelContainer}>
 //                   <Text style={styles.fieldLabel}>
@@ -829,8 +829,8 @@
 //                   <Text style={styles.fieldLabel}>Unit</Text>
 //                 </View>
 //               </View>
-              
-          
+
+
 //               <View style={styles.pipeDiameterInputRow}>
 //                 <View style={styles.pipeDiameterInputContainer}>
 //                   <TextInput
@@ -1489,7 +1489,7 @@ import { Keyboard } from "react-native";
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
-import api from './axiosInstance'; // Adjust the path as needed
+import api from './axiosInstance';
 
 /* ---------------- TYPES ---------------- */
 
@@ -1526,7 +1526,7 @@ interface PowerStationData {
   t1Unit?: string;
   wcrhUnit?: string;
 
-   p1Value?: string;
+  p1Value?: string;
   p2Value?: string;
   t1Value?: string;
   t2pValue?: string;
@@ -1572,30 +1572,55 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
   return (
     <View style={{ zIndex, overflow: 'visible' }}>
       <DropDownPicker
-        open={open}
-        value={value}
-        items={items}
-        setOpen={setOpen}
-        setValue={setValue}
-        onChangeValue={onSelect}
-        placeholder={placeholder}
-        disabled={disabled}
-        listMode="SCROLLVIEW"
-        dropDownDirection="BOTTOM"
-        nestedScrollEnabled={true}
-        zIndex={zIndex}
-        zIndexInverse={1000 - zIndex}
-        style={[styles.dropdown, { height: 50, width: '100%' }]}
-        dropDownContainerStyle={{
-          borderWidth: 1,
-          borderColor: '#E0E0E0',
-          borderRadius: 8,
-          backgroundColor: '#FFF',
-          elevation: zIndex,
-          zIndex: zIndex,
-        }}
-        closeAfterSelecting
-      />
+  open={open}
+  value={value}
+  items={items}
+  setOpen={setOpen}
+  setValue={setValue}
+  onChangeValue={onSelect}
+  placeholder={placeholder}
+  disabled={disabled}
+
+  listMode="SCROLLVIEW"
+
+  flatListProps={{
+    nestedScrollEnabled: true,
+  }}
+
+  dropDownDirection="BOTTOM"
+
+  zIndex={zIndex}
+  zIndexInverse={1000 - zIndex}
+
+  containerStyle={{
+    height: 40,
+  }}
+
+  style={[
+    styles.dropdown,
+    {
+      minHeight: 40,
+      height: 40,
+      width: '100%',
+    },
+  ]}
+
+  textStyle={{
+    fontSize: 13,
+  }}
+
+  dropDownContainerStyle={{
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 8,
+    backgroundColor: '#FFF',
+    position: 'absolute',
+    top: 42,
+    width: '100%',
+  }}
+
+  closeAfterSelecting
+/>
     </View>
   );
 };
@@ -1604,10 +1629,10 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
 
 export default function AdditionalUserInputsScreen() {
   const params = useLocalSearchParams();
-  
+
   // Check if we're coming back from calculator with data
   const returningFromCalculator = params.fromCalculator === 'true';
-  const returnedData = params.powerStationData 
+  const returnedData = params.powerStationData
     ? JSON.parse(params.powerStationData as string) as PowerStationData
     : {};
 
@@ -1658,7 +1683,7 @@ export default function AdditionalUserInputsScreen() {
   const [loading, setLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-  const [containerHeight, setContainerHeight] = useState(0);
+ 
   const [showHistoryBtn, setShowHistoryBtn] = useState(true);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [currencyItems, setCurrencyItems] = useState<DropdownItem[]>([
@@ -1747,15 +1772,7 @@ export default function AdditionalUserInputsScreen() {
     }
   };
 
-  // Handle scroll when dropdown opens
-  useEffect(() => {
-    if (currencyOpen) {
-      // Scroll to show the currency dropdown properly
-      setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
-      }, 100);
-    }
-  }, [currencyOpen]);
+
 
   useEffect(() => {
     const showSub = Keyboard.addListener("keyboardDidShow", () => {
@@ -1775,8 +1792,7 @@ export default function AdditionalUserInputsScreen() {
   useEffect(() => {
     if (returningFromCalculator && returnedData) {
       console.log("Returned data from calculator:", returnedData);
-      
-      // Store calculator values
+
       setCalculatorValues({
         p1Value: returnedData.p1Value || '',
         p2Value: returnedData.p2Value || '',
@@ -1789,12 +1805,11 @@ export default function AdditionalUserInputsScreen() {
         twValue: returnedData.twValue || '',
         wwValue: returnedData.wwValue || ''
       });
-      
-      // Update units
+
       setP1Unit(returnedData.p1Unit || 'barA');
       setT1Unit(returnedData.t1Unit || 'deg C');
       setWcrhUnit(returnedData.wcrhUnit || 'T/HR');
-      
+
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     }
@@ -1816,14 +1831,19 @@ export default function AdditionalUserInputsScreen() {
     }
   };
 
+  const handleHeatRateUnitChange = (value: string | null) => {
+    setHeatRateUnit(value);
+    setWarnings((prev: any) => ({ ...prev, heatRateValue: null }));
+    setErrors((prev: any) => ({ ...prev, heatRateValue: null }));
+  };
+
   /* ---------------- VALIDATION FUNCTIONS ---------------- */
 
-  // Validate Plant MCR with bounds checking
   const validatePlantMCR = (value: string): { isValid: boolean; warning: string | null } => {
     if (!value.trim()) {
       return { isValid: false, warning: null };
     }
-    
+
     const numValue = Number(value);
     if (isNaN(numValue)) {
       return { isValid: false, warning: null };
@@ -1834,90 +1854,102 @@ export default function AdditionalUserInputsScreen() {
     } else if (numValue > 1200) {
       return { isValid: false, warning: 'Plant MCR out of bounds (HIGH) (100-1200)' };
     }
-    
+
     return { isValid: true, warning: null };
   };
 
-  // Validate Heat Rate with bounds checking (no auto-correction)
-  const validateHeatRate = (value: string): { isValid: boolean; warning: string | null } => {
+  const validateHeatRate = (value: string, unit: string | null): { isValid: boolean; warning: string | null } => {
     if (!value.trim()) {
       return { isValid: false, warning: null };
     }
-    
+
     const numValue = Number(value);
     if (isNaN(numValue)) {
       return { isValid: false, warning: null };
     }
 
-    if (numValue < 6000) {
-      return { isValid: false, warning: 'Heat Rate out of bounds (LOW) (6000-12000)' };
-    } else if (numValue > 12000) {
-      return { isValid: false, warning: 'Heat Rate out of bounds (HIGH) (6000-12000)' };
+    if (unit === 'kJ/kW-h') {
+      if (numValue < 6000) {
+        return { isValid: false, warning: 'Heat Rate out of bounds (LOW) (6000-12000)' };
+      } else if (numValue > 12000) {
+        return { isValid: false, warning: 'Heat Rate out of bounds (HIGH) (6000-12000)' };
+      }
+    } else if (unit === 'Btu/kW-h') {
+      if (numValue < 5687) {
+        return { isValid: false, warning: 'Heat Rate out of bounds (LOW) (5687-11374)' };
+      } else if (numValue > 11374) {
+        return { isValid: false, warning: 'Heat Rate out of bounds (HIGH) (5687-11374)' };
+      }
     }
-    
+
     return { isValid: true, warning: null };
   };
 
-  // Handle Plant MCR change with validation
+  const getDefaultHeatRate = (): string => {
+    if (plantType === 'ccpp') {
+      return '7500';
+    } else if (criticalType === 'supercritical') {
+      return '8400';
+    }
+    return '9500';
+  };
+
   const handlePlantMCRChange = (text: string) => {
     setPlantMCR(text);
-    
-    // Clear previous error
     setErrors((prev: any) => ({ ...prev, plantMCR: null }));
-    
-    // Validate and set warning
+    setWarnings((prev: any) => ({ ...prev, plantMCR: null }));
+
     const { isValid, warning } = validatePlantMCR(text);
     if (!isValid && warning) {
       setWarnings((prev: any) => ({ ...prev, plantMCR: warning }));
-    } else {
-      setWarnings((prev: any) => ({ ...prev, plantMCR: null }));
     }
   };
 
-  // Handle Heat Rate change with validation (no auto-correction)
   const handleHeatRateChange = (text: string) => {
     setHeatRateValue(text);
-    
-    // Clear previous error
     setErrors((prev: any) => ({ ...prev, heatRateValue: null }));
-    
-    // Validate and set warning
-    const { isValid, warning } = validateHeatRate(text);
+    setWarnings((prev: any) => ({ ...prev, heatRateValue: null }));
+
+    const { isValid, warning } = validateHeatRate(text, heatRateUnit);
     if (!isValid && warning) {
       setWarnings((prev: any) => ({ ...prev, heatRateValue: warning }));
-    } else {
-      setWarnings((prev: any) => ({ ...prev, heatRateValue: null }));
     }
   };
 
-  /* ---------------- FORM CLEAR FUNCTION ---------------- */
+  const handleHeatRateUnitSelect = (value: string | null) => {
+    setHeatRateUnit(value);
+    setWarnings((prev: any) => ({ ...prev, heatRateValue: null }));
+    setErrors((prev: any) => ({ ...prev, heatRateValue: null }));
+
+    if (value === 'default') {
+      const defaultVal = getDefaultHeatRate();
+      setHeatRateValue(defaultVal);
+    } else {
+      if (heatRateValue.trim()) {
+        const { isValid, warning } = validateHeatRate(heatRateValue, value);
+        if (!isValid && warning) {
+          setWarnings((prev: any) => ({ ...prev, heatRateValue: warning }));
+        }
+      }
+    }
+  };
 
   const clearAllFormFields = () => {
-    // Clear all text inputs
     setPowerStationName('');
     setPlantMCR('');
     setHeatRateValue('');
     setProductionCost('');
     setCustomCurrency('');
     setSellPricePerMWh('');
-
-    // Reset all dropdowns to default values
     setPlantType(null);
     setCriticalType(null);
     setHeatRateUnit('kJ/kW-h');
     setProductionCostCurrency('USD');
-
-    // Clear errors and warnings
     setErrors({});
     setWarnings({});
-
-    // Close all dropdowns
     closeAllDropdowns();
   };
 
-  /* ---------------- API FUNCTIONS ---------------- */
-
-  // Prepare data for API
   const prepareApiData = (): PlantData => {
     return {
       power_station_name: powerStationName.trim(),
@@ -1939,22 +1971,18 @@ export default function AdditionalUserInputsScreen() {
     let newErrors: any = {};
     let newWarnings: any = {};
 
-    // Power Station Name
     if (!powerStationName.trim()) {
       newErrors.powerStationName = 'Power station name is required';
     }
 
-    // Plant Type
     if (!plantType) {
       newErrors.plantType = 'Plant type is required';
     }
 
-    // Critical Type
     if (plantType === 'coal_oil_fired' && !criticalType) {
       newErrors.criticalType = 'Critical type is required';
     }
 
-    // Plant MCR Validation with bounds checking
     if (!plantMCR.trim()) {
       newErrors.plantMCR = 'Plant MCR is required';
     } else if (isNaN(Number(plantMCR))) {
@@ -1966,41 +1994,33 @@ export default function AdditionalUserInputsScreen() {
       }
     }
 
-    // Heat Rate Validation with bounds checking
     if (!heatRateValue.trim()) {
-      // 👉 Set default values based on plant type
-      let defaultValue = '9500'; // Default for subcritical
-      if (plantType === 'ccpp') {
-        defaultValue = '7500';
-      } else if (criticalType === 'supercritical') {
-        defaultValue = '8400';
+      if (heatRateUnit !== 'default') {
+        newErrors.heatRateValue = 'Heat rate is required';
       }
-      setHeatRateValue(defaultValue);
     } else if (isNaN(Number(heatRateValue))) {
       newErrors.heatRateValue = 'Enter valid heat rate';
     } else {
-      const { isValid, warning } = validateHeatRate(heatRateValue);
-      if (!isValid && warning) {
-        newWarnings.heatRateValue = warning;
+      if (heatRateUnit !== 'default') {
+        const { isValid, warning } = validateHeatRate(heatRateValue, heatRateUnit);
+        if (!isValid && warning) {
+          newWarnings.heatRateValue = warning;
+        }
       }
     }
-
-    /* ---------------- PRODUCTION COST DEFAULT LOGIC ---------------- */
 
     if (!productionCost.trim()) {
       setProductionCost('50');
       setProductionCostCurrency('USD');
-    } 
+    }
     else if (isNaN(Number(productionCost))) {
       newErrors.productionCost = 'Enter valid cost';
     }
 
-    // Currency
     if (!productionCostCurrency) {
       newErrors.productionCostCurrency = 'Currency required';
     }
 
-    // Custom Currency
     if (
       productionCostCurrency === 'custom' &&
       !customCurrency.trim()
@@ -2008,7 +2028,6 @@ export default function AdditionalUserInputsScreen() {
       newErrors.customCurrency = 'Enter custom currency';
     }
 
-    // Sell Price
     if (!sellPricePerMWh.trim()) {
       newErrors.sellPricePerMWh = 'Sell price required';
     } else if (isNaN(Number(sellPricePerMWh))) {
@@ -2021,7 +2040,6 @@ export default function AdditionalUserInputsScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
-
   const goToCalculator = () => {
     if (!validateForm()) {
       if (Object.keys(errors).length === 0 && Object.keys(warnings).length > 0) {
@@ -2030,14 +2048,13 @@ export default function AdditionalUserInputsScreen() {
           'There are some values out of recommended range. Do you want to continue?',
           [
             { text: 'Cancel', style: 'cancel' },
-            { 
-              text: 'Continue', 
+            {
+              text: 'Continue',
               onPress: () => {
                 router.push({
                   pathname: "/CalculatorScreen",
                   params: {
                     powerStationData: JSON.stringify({
-                      // Basic plant data
                       stationName: powerStationName,
                       pipeDiaD2: null,
                       pipeDiaUnit: null,
@@ -2051,8 +2068,6 @@ export default function AdditionalUserInputsScreen() {
                       productionCost: productionCost,
                       productionCostCurrency: productionCostCurrency,
                       customCurrency: customCurrency,
-                      
-                      // Calculator values from stored state
                       p1Value: calculatorValues.p1Value,
                       p2Value: calculatorValues.p2Value,
                       t1Value: calculatorValues.t1Value,
@@ -2063,8 +2078,6 @@ export default function AdditionalUserInputsScreen() {
                       d2Value: calculatorValues.d2Value,
                       twValue: calculatorValues.twValue,
                       wwValue: calculatorValues.wwValue,
-                      
-                      // Units
                       p1Unit: p1Unit,
                       t1Unit: t1Unit,
                       wcrhUnit: wcrhUnit,
@@ -2084,7 +2097,6 @@ export default function AdditionalUserInputsScreen() {
       pathname: "/CalculatorScreen",
       params: {
         powerStationData: JSON.stringify({
-          // Basic plant data
           stationName: powerStationName,
           pipeDiaD2: null,
           pipeDiaUnit: null,
@@ -2098,8 +2110,6 @@ export default function AdditionalUserInputsScreen() {
           productionCost: productionCost,
           productionCostCurrency: productionCostCurrency,
           customCurrency: customCurrency,
-          
-          // Calculator values from returned data (if any)
           p1Value: returnedData.p1Value || '',
           p2Value: returnedData.p2Value || '',
           t1Value: returnedData.t1Value || '',
@@ -2110,8 +2120,6 @@ export default function AdditionalUserInputsScreen() {
           d2Value: returnedData.d2Value || '',
           twValue: returnedData.twValue || '',
           wwValue: returnedData.wwValue || '',
-          
-          // Units
           p1Unit: p1Unit,
           t1Unit: t1Unit,
           wcrhUnit: wcrhUnit,
@@ -2120,10 +2128,7 @@ export default function AdditionalUserInputsScreen() {
     });
   };
 
-  const handleContentLayout = (event: any) => {
-    const { height } = event.nativeEvent.layout;
-    setContainerHeight(height);
-  };
+
 
   /* ---------------- JSX ---------------- */
 
@@ -2131,46 +2136,59 @@ export default function AdditionalUserInputsScreen() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
       <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
         <ScrollView
           ref={scrollViewRef}
+           style={{ flex: 1 }}
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
           nestedScrollEnabled={true}
           onScrollBeginDrag={closeAllDropdowns}
           keyboardDismissMode="on-drag"
-          onScroll={() => setShowHistoryBtn(true)}
-          scrollEventThrottle={16}
+          bounces={false}
         >
-          {/* HEADER */}
-          <View style={styles.header} pointerEvents="box-none">
-            <View style={styles.titleContainer} pointerEvents="none">
-              <Text style={styles.title}>Plant Configuration</Text>
-              <Text style={styles.subtitle}>Additional Plant Information</Text>
-            </View>
+
+          {/* HEADER with Plant Configuration */}
+          <View style={styles.header}>
+
+            <TouchableOpacity
+              style={styles.headerNextTextContainer}
+              onPress={goToCalculator}
+              disabled={loading}
+              activeOpacity={0.7}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#FFF" />
+              ) : (
+                <Text style={styles.headerNextText}>Next</Text>
+              )}
+            </TouchableOpacity>
+
+            <Text style={styles.headerTitle}>Plant Configuration</Text>
+            <Text style={styles.headerSubtitle}>Additional Plant Information</Text>
           </View>
+
 
           {/* SUCCESS MESSAGE */}
           {showSuccess && (
             <View style={styles.successContainer}>
-              <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+              <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
               <Text style={styles.successText}>{successMessage}</Text>
             </View>
           )}
 
           {/* CONTENT */}
           <View
-            style={styles.content}
-            onStartShouldSetResponder={() => true}
-            onResponderGrant={closeAllDropdowns}
-            onLayout={handleContentLayout}
-          >
+  style={styles.content}
+  onStartShouldSetResponder={() => true}
+  onResponderGrant={closeAllDropdowns}
+>
             {/* ---------------- BASIC INFORMATION ---------------- */}
-            <View style={[styles.section, { zIndex: 6000 }]}>
+            <View style={[styles.section, { zIndex: 6000, marginBottom: -10 }]}>
               <Text style={styles.sectionTitle}>BASIC INFORMATION</Text>
 
               {/* Name of Power Station */}
@@ -2192,13 +2210,14 @@ export default function AdditionalUserInputsScreen() {
                   placeholderTextColor="#999"
                   onFocus={closeAllDropdowns}
                 />
+                {errors.powerStationName && (
+                  <Text style={styles.errorText}>{errors.powerStationName}</Text>
+                )}
               </View>
-            </View>
 
-            {/* ---------------- PLANT TYPE ---------------- */}
-            <View style={[styles.section, styles.plantTypeSection, { marginBottom: -10 }]}>
-              <View style={styles.fieldContainer}>
-                <Text style={[styles.fieldLabel]}>Plant Type <Text style={styles.requiredStar}>*</Text></Text>
+              {/* Plant Type - MOVED UPWARD */}
+              <View style={[styles.fieldContainer, { marginTop: -5 }]}>
+                <Text style={styles.fieldLabel}>Plant Type <Text style={styles.requiredStar}>*</Text></Text>
                 <CustomDropdown
                   open={plantTypeOpen}
                   value={plantType}
@@ -2218,8 +2237,9 @@ export default function AdditionalUserInputsScreen() {
                 )}
               </View>
 
+              {/* Boiler Type - shown conditionally */}
               {plantType === 'coal_oil_fired' && (
-                <View style={[styles.fieldContainer, { zIndex: 2500 }]}>
+                <View style={[styles.fieldContainer, { zIndex: 2500, marginTop: -3 }]}>
                   <Text style={styles.fieldLabel}>Boiler Type <Text style={styles.requiredStar}>*</Text></Text>
                   <CustomDropdown
                     open={criticalTypeOpen}
@@ -2242,7 +2262,7 @@ export default function AdditionalUserInputsScreen() {
             </View>
 
             {/* ---------------- PLANT SPECIFICATIONS ---------------- */}
-            <View style={[styles.section, { zIndex: 70 }]}>
+            <View style={[styles.section, { zIndex: 70, marginTop: 10 }]}>
               <Text style={styles.sectionTitle}>PLANT SPECIFICATIONS</Text>
 
               {/* Plant MCR */}
@@ -2272,7 +2292,6 @@ export default function AdditionalUserInputsScreen() {
               <View style={styles.fieldContainer}>
                 <Text style={styles.fieldLabel}>Heat Rate <Text style={styles.requiredStar}>*</Text></Text>
                 <View style={styles.doubleFieldContainer}>
-                  {/* Heat Rate Value */}
                   <View style={styles.singleFieldContainer}>
                     <TextInput
                       style={[
@@ -2285,6 +2304,7 @@ export default function AdditionalUserInputsScreen() {
                       placeholder="Enter Value"
                       placeholderTextColor="#999"
                       keyboardType="numeric"
+                      editable={heatRateUnit !== 'default'}
                     />
                     {errors.heatRateValue && (
                       <Text style={styles.errorText}>{errors.heatRateValue}</Text>
@@ -2294,7 +2314,6 @@ export default function AdditionalUserInputsScreen() {
                     )}
                   </View>
 
-                  {/* Heat Rate Unit */}
                   <View style={styles.singleFieldContainer}>
                     <CustomDropdown
                       open={heatRateUnitOpen}
@@ -2305,7 +2324,7 @@ export default function AdditionalUserInputsScreen() {
                           ? handleOpenDropdown('heatRateUnit')
                           : setHeatRateUnitOpen(false)
                       }
-                      setValue={setHeatRateUnit}
+                      setValue={handleHeatRateUnitSelect}
                       placeholder="kJ/kW-h"
                       zIndex={2000}
                     />
@@ -2315,15 +2334,14 @@ export default function AdditionalUserInputsScreen() {
             </View>
 
             {/* ---------------- FINANCIAL INFORMATION ---------------- */}
-            <View style={[styles.section, { zIndex: 60 }]}>
-              <Text style={[styles.sectionTitle, { marginTop: -40 }]}>FINANCIAL INFORMATION</Text>
+            <View style={[styles.section, { zIndex: 60, marginTop: -10 }]}>
+              <Text style={styles.sectionTitle}>FINANCIAL INFORMATION</Text>
 
-              {/* Production Cost and Currency - Fixed layout to prevent overlap */}
+              {/* Production Cost and Currency */}
               <View style={styles.fieldContainer}>
                 <Text style={styles.fieldLabel}>Production Cost (per MW-h) <Text style={styles.requiredStar}>*</Text></Text>
 
                 <View style={styles.doubleFieldContainer}>
-                  {/* Production Cost */}
                   <View style={styles.singleFieldContainer}>
                     <Text style={styles.subLabel}>Cost</Text>
                     <TextInput
@@ -2345,7 +2363,6 @@ export default function AdditionalUserInputsScreen() {
                     )}
                   </View>
 
-                  {/* Currency */}
                   <View style={styles.singleFieldContainer}>
                     <Text style={styles.subLabel}>Currency</Text>
                     <DropDownPicker
@@ -2363,14 +2380,44 @@ export default function AdditionalUserInputsScreen() {
                         setProductionCostCurrency(value);
                       }}
                       setItems={setCurrencyItems}
+
                       listMode="SCROLLVIEW"
-                      style={[styles.dropdown, { height: 50 }]}
-                      dropDownContainerStyle={{
-                        borderWidth: 1,
-                        borderColor: '#E0E0E0',
-                        borderRadius: 8,
-                        backgroundColor: '#FFF',
+
+                      containerStyle={{
+                        height: 38,
                       }}
+
+                      style={[
+                        styles.dropdown,
+                        {
+                          minHeight: 38,
+                          height: 38,
+                        },
+                      ]}
+
+                      textStyle={{
+                        fontSize: 12,
+                      }}
+
+                      listItemLabelStyle={{
+                        fontSize: 12,
+                      }}
+
+                      listItemContainerStyle={{
+                        height: 32,
+                      }}
+
+                      dropDownContainerStyle={{
+  borderWidth: 1,
+  borderColor: '#E0E0E0',
+  borderRadius: 8,
+  backgroundColor: '#FFF',
+  elevation: 1000,
+  zIndex: 1000,
+  position: 'absolute',
+  top: 42,
+  width: '100%',
+}}
                     />
                     {errors.productionCostCurrency && (
                       <Text style={styles.errorText}>
@@ -2382,7 +2429,7 @@ export default function AdditionalUserInputsScreen() {
               </View>
 
               {productionCostCurrency === 'custom' && (
-                <View style={styles.fieldContainer}>
+                <View style={[styles.fieldContainer, { marginTop: -7 }]}>
                   <Text style={styles.fieldLabel}>Custom Currency <Text style={styles.requiredStar}>*</Text></Text>
                   <TextInput
                     style={[
@@ -2403,11 +2450,11 @@ export default function AdditionalUserInputsScreen() {
                 </View>
               )}
 
-              {/* Sell Price - Clear separation from currency dropdown */}
-              <View style={styles.fieldContainer}>
-                <Text style={[styles.fieldLabel, { marginTop: -15 }]}>
+              {/* Sell Price */}
+              <View style={[styles.fieldContainer, { marginTop: -5 }]}>
+                <Text style={styles.fieldLabel}>
                   Sell Price ({productionCostCurrency === "custom"
-                    ? customCurrency
+                    ? customCurrency || "Custom"
                     : productionCostCurrency} / MW-h) <Text style={styles.requiredStar}>*</Text>
                 </Text>
                 <TextInput
@@ -2430,30 +2477,21 @@ export default function AdditionalUserInputsScreen() {
               </View>
             </View>
 
-            {/* ---------------- SAVE BUTTON ---------------- */}
-            <View style={styles.saveButtonContainer}>
-              <TouchableOpacity
-                style={[styles.saveButton, (!powerStationName.trim() || loading) && styles.saveButtonDisabled]}
-                onPress={goToCalculator}
-                disabled={loading}
-                activeOpacity={0.7}
-              >
-                {loading ? (
-                  <ActivityIndicator size="small" color="#FFF" />
-                ) : (
-                  <Text style={styles.saveButtonText}>Next</Text>
-                )}
-              </TouchableOpacity>
-            </View>
+
           </View>
         </ScrollView>
+
+        {/* FIXED NEXT BUTTON - Outside ScrollView */}
+
+
+        {/* FLOATING HISTORY BUTTON */}
         {!isKeyboardVisible && (
           <TouchableOpacity
             style={styles.floatingButton}
             activeOpacity={0.8}
             onPress={() => router.push('/ViewHistoryScreen')}
           >
-            <Ionicons name="time-outline" size={22} color="#fff" />
+            <Ionicons name="time-outline" size={20} color="#fff" />
             <Text style={styles.floatingButtonText}>View History</Text>
           </TouchableOpacity>
         )}
@@ -2464,34 +2502,49 @@ export default function AdditionalUserInputsScreen() {
 
 /* ---------------- STYLES ---------------- */
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#ef4b56'
+    backgroundColor: '#fff'
+  },
+  headerNextTextContainer: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    zIndex: 1000,
+  },
+
+
+  headerNextText: {
+    color: '#FFF',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   errorInput: {
     borderColor: 'red',
   },
   warningInput: {
-    borderColor: 'red', // Changed from orange to red
+    borderColor: 'red',
   },
   floatingButton: {
     position: 'absolute',
-    bottom: 30,
-    right: 20,
+    bottom: 25,
+    right: 15,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#ef4b56',
-    paddingVertical: 12,
-    paddingHorizontal: 18,
-    borderRadius: 30,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 22,
     elevation: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.3,
     shadowRadius: 3,
+    zIndex: 1000,
+    maxWidth: 160,
   },
   floatingButtonText: {
     color: '#fff',
@@ -2501,146 +2554,106 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: 'red',
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: 11,
+    marginTop: 2,
   },
   warningText: {
-    color: 'red', // Changed from orange to red
-    fontSize: 12,
-    marginTop: 4,
+    color: 'red',
+    fontSize: 11,
+    marginTop: 2,
   },
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor: '#fff'
   },
   scrollContent: {
-    flexGrow: 1,
-    paddingBottom: 60
-  },
+      flexGrow: 1,
+  paddingBottom: 120,
+},
   header: {
     backgroundColor: '#ef4b56',
-    padding: 20
-  },
-  headerTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center'
-  },
-  backButton: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  backButtonText: {
-    color: '#FFF',
-    marginLeft: 8,
-    fontSize: 16,
-    fontWeight: '500'
-  },
-  titleContainer: {
+    paddingTop: 20,
+    paddingBottom: 20,
+    paddingHorizontal: 20,
     alignItems: 'center',
-    marginTop: 20
   },
-  title: {
-    fontSize: 22,
+  headerTitle: {
+    fontSize: 24,
     color: '#FFF',
-    fontWeight: '600',
-    marginBottom: 8
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: '#FFF',
+    opacity: 0.9,
   },
   subLabel: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#666',
-    marginBottom: 6,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#FFF',
-    opacity: 0.9
+    marginBottom: 4,
   },
   successContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#E8F5E9',
-    padding: 10,
-    marginHorizontal: 20,
+    padding: 8,
+    marginHorizontal: 16,
     borderRadius: 6,
-    marginTop: 10,
+    marginTop: 8,
+    marginBottom: 8,
   },
   successText: {
     marginLeft: 10,
     color: '#2E7D32',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '500'
   },
-  content: {
-    flex: 1,
-    backgroundColor: '#FFF',
-    padding: 20,
-    overflow: 'visible',
-    position: 'relative',
-    minHeight: 'auto',
-  },
+ content: {
+  backgroundColor: '#FFF',
+  padding: 16,
+  borderTopLeftRadius: 20,
+  borderTopRightRadius: 20,
+},
   section: {
-    marginBottom: 30,
+    marginBottom: 12,
     position: 'relative',
-    overflow: 'visible',
+    
   },
   plantTypeSection: {
     zIndex: 3000,
     position: 'relative',
     overflow: 'visible',
-    marginTop: -10,
-  },
-  plantTypeDropdownWrapper: {
-    position: 'relative',
-    zIndex: 2000,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#ef4b56',
-    marginBottom: 20,
+    marginBottom: 10,
     fontWeight: 'bold',
     letterSpacing: 0.5,
   },
   fieldContainer: {
-    marginBottom: 20,
+    marginBottom: 7,
     position: 'relative',
-    overflow: 'visible',
+    
   },
   singleFieldContainer: {
     flex: 1,
     position: 'relative',
-    overflow: 'visible',
+   
   },
   doubleFieldContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
-    gap: 15,
+    marginBottom: 0,
+    gap: 12,
     position: 'relative',
     zIndex: 4000,
   },
-  costCurrencyRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: 15,
-  },
-  costInputWrapper: {
-    flex: 1,
-  },
-  costInput: {
-    marginBottom: 0,
-  },
-  currencyDropdownWrapper: {
-    flex: 1,
-    zIndex: 5000,
-  },
-  currencyLabel: {
-    marginBottom: 8,
-  },
   fieldLabel: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#333',
-    marginBottom: 8,
+    marginBottom: 6,
     fontWeight: '500',
   },
   requiredStar: {
@@ -2653,70 +2666,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     fontSize: 14,
     backgroundColor: '#FFF',
-    height: 50,
+    height: 40,
     color: '#333',
   },
   dropdown: {
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 8,
-    height: 50,
+    height: 30,
     backgroundColor: '#FFF',
     paddingHorizontal: 14,
     justifyContent: 'center',
   },
-  dropdownText: {
-    fontSize: 14,
-    color: '#333',
-  },
-  dropdownPlaceholder: {
-    fontSize: 14,
-    color: '#999'
-  },
-  dropdownArrow: {
-    width: 20,
-    height: 20,
-  },
-  dropdownTick: {
-    width: 16,
-    height: 16,
-    tintColor: '#ef4b56',
-  },
-  dropdownListItem: {
-    paddingHorizontal: 14,
+
+  fixedNextButtonContainer: {
+    position: 'absolute',
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  dropdownListItemLabel: {
-    fontSize: 14,
-    color: '#333',
-  },
-  dropdownSelectedItem: {
-    backgroundColor: '#FFF5F5',
-  },
-  dropdownSelectedLabel: {
-    color: '#ef4b56',
-    fontWeight: '500',
-  },
-  dropdownBadge: {
-    backgroundColor: 'transparent',
-    borderWidth: 0,
-  },
-  dropdownBadgeText: {
-    fontSize: 14,
-    color: '#333',
-  },
-  saveButtonContainer: {
-    marginTop: -10,
+    paddingHorizontal: 16,
     alignItems: 'center',
+    bottom: -40,
+    left: 20,
+    right: 20,
+    zIndex: 999,
   },
+
   saveButton: {
     backgroundColor: '#ef4b56',
-    paddingVertical: 16,
+    paddingVertical: 12,
     paddingHorizontal: 40,
     borderRadius: 25,
-    width: '70%',
+    width: '60%',
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -2730,25 +2709,10 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: '#FFF',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     letterSpacing: 1,
   },
-  infoContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: '#F5F5F5',
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 15,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-  },
-  infoText: {
-    marginLeft: 10,
-    color: '#666',
-    fontSize: 12,
-    flex: 1,
-    lineHeight: 16,
-  },
+
+
 });

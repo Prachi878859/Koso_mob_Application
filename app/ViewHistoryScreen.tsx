@@ -37,8 +37,13 @@ export default function ViewHistoryScreen() {
       const res = await api.get("/power-stations");
 
       if (res.data.success) {
-        setStations(res.data.data);
-        setFilteredStations(res.data.data);
+        // Sort stations by created_at in descending order (newest first)
+        const sortedStations = [...res.data.data].sort((a, b) => {
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        });
+        
+        setStations(sortedStations);
+        setFilteredStations(sortedStations);
       }
     } catch (error) {
       console.log("Fetch Error:", error);
@@ -66,8 +71,6 @@ export default function ViewHistoryScreen() {
 
     setFilteredStations(filtered);
   };
-
-
 
 
   const formatDate = (dateString: string) => {
