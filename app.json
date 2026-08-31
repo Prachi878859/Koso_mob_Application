@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "koso_sp",
-    "slug": "kosoapplication",
+    "name": "kosoapplication",
+    "slug": "koso-application",
     "version": "1.0.0",
     "orientation": "portrait",
     "scheme": "leakage",
@@ -51,9 +51,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "034f5133-31b8-4980-8424-2c9a664e9e49"
+        "projectId": "f393cbbc-9d1b-4eab-a709-1bd2ad99eee2"
       }
     },
-    "owner": "koso_sp"
+    "owner": "kosoapplication"
   }
 }
