@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "kosoapplication",
+    "name": "kosoapplication78",
     "slug": "koso-application",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -51,9 +51,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "f393cbbc-9d1b-4eab-a709-1bd2ad99eee2"
+        "projectId": "ae0866e9-016a-4c31-95d6-c18071e60f86"
       }
     },
-    "owner": "kosoapplication"
+    "owner": "kosoapplication78"
   }
 }
